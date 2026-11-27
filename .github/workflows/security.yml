@@ -31,7 +31,7 @@ jobs:
           node-version-file: .node-version
 
       - name: Set up uv and Python 3.12
-        uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d
         with:
           version: 0.12.20
           python-version: "3.12"
