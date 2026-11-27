@@ -1,0 +1,14 @@
+# The Linux validation image is a dependency image only.  Keep the build
+# context to the lockfiles and workspace manifests; never send models, caches,
+# source archives, credentials, or a developer's local dependency trees.
+*
+!pyproject.toml
+!uv.lock
+!package.json
+!package-lock.json
+!.python-version
+!.node-version
+!README.md
+!packages/
+!packages/core/
+!packages/core/package.json

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "protocol_id": "jwtd-browser-v1",
+  "frozen_before_inference": "2026-11-27",
+  "source_protocol": "jwtd-v1",
+  "source_protocol_sha256": "2c88f2afbf31e6684dd26b2bbc45ed196efad23267853b30e5910809d98e8e3a",
+  "model_revision": "8d640720bddeb64c89dc1fa7780c3ea29fa523e8",
+  "subset": {
+    "selection_is_model_result_blind": true,
+    "pre_items_per_non_ok_config_label": 4,
+    "clean_post_items_per_selected_pre": 1,
+    "ordering": "SHA-256 of source item ID, ascending",
+    "deduplication_key": "pair_id",
+    "expected_pre_items": 32,
+    "expected_clean_post_items": 32,
+    "purpose": "browser numerical/tokenization parity only; not an accuracy estimate"
+  },
+  "offsets": {
+    "python_reference": "unicode_codepoint",
+    "browser_runtime": "utf16_code_unit",
+    "comparison": "convert Python codepoint boundaries to UTF-16 before comparing"
+  },
+  "comparison": {
+    "ordinary_token_logit_max_abs_delta_max": 0.001,
+    "ordinary_token_argmax_agreement_min": 1.0,
+    "exact_offset_match_required": true,
+    "cached_logit_argmax_span_match_required": true,
+    "span_comparison": "detector output spans and labels after explicit offset conversion",
+    "special_tokens": "excluded from ordinary-token numerical comparison"
+  },
+  "runtime": {
+    "backend": "wasm",
+    "offline": true,
+    "network_policy": "no http/https/ws/wss requests from the extension run",
+    "model_distribution": "sanitized dist model hash must be bound to raw cache model hash"
+  },
+  "artifacts": {
+    "fixture": "ignored artifacts/corpus-browser/jwtd-browser-v1.json",
+    "report": "ignored artifacts/browser-corpus-parity.json",
+    "raw_input_text": "must not be committed, logged, or sent over a network"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "kotoba-guard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "npm run lint && npm run typecheck && npm run format:check",
+    "lint": "eslint packages extension tests scripts --no-warn-ignored",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"*.{json,md,ts}\" .github docs scripts packages extension/src extension/manifest.json tests benchmarks \"third_party/**/*.json\"",
+    "format:check": "prettier --check \"*.{json,md,ts}\" .github docs scripts packages extension/src extension/manifest.json tests benchmarks \"third_party/**/*.json\"",
+    "test": "vitest run",
+    "test:model": "vitest run --config vitest.model.config.ts",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "build": "node scripts/build.mjs",
+    "package": "uv run --locked python scripts/package_extension.py"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
+    "@types/chrome": "^0.3.8",
+    "@types/node": "^26.6.10",
+    "@vitest/coverage-v8": "^5.1.2",
+    "eslint": "^10.15.0",
+    "jsdom": "^31.0.1",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.74.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.2"
+  }
+}

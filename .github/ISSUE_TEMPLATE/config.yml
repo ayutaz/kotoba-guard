@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: セキュリティ脆弱性の報告
+    url: https://github.com/ayutaz/kotoba-guard/security/advisories/new
+    about: 公開 Issue に機密情報や脆弱性の詳細を書かず、Private vulnerability reporting を使用してください。

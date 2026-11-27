@@ -1,0 +1,180 @@
+{
+  "schema_version": "synthetic-v1",
+  "license": "MIT",
+  "source": "Self-authored synthetic Japanese sentences for local regression evaluation; no external or private user text.",
+  "notes": "Gold spans use Python Unicode codepoint offsets. Each typo item has one intentionally corrupted span.",
+  "items": [
+    { "id": "clean-001", "text": "今日は晴れです。", "errors": [] },
+    {
+      "id": "clean-002",
+      "text": "明日の会議は午前十時から始まります。",
+      "errors": []
+    },
+    { "id": "clean-003", "text": "私は毎朝コーヒーを飲みます。", "errors": [] },
+    {
+      "id": "clean-004",
+      "text": "新しい本を机の上に置きました。",
+      "errors": []
+    },
+    {
+      "id": "clean-005",
+      "text": "プロジェクトの進捗を共有します。",
+      "errors": []
+    },
+    { "id": "clean-006", "text": "電車は八時に駅を出発します。", "errors": [] },
+    {
+      "id": "clean-007",
+      "text": "この文章には誤りがありません。",
+      "errors": []
+    },
+    { "id": "clean-008", "text": "週末に友人と映画を見ました。", "errors": [] },
+    {
+      "id": "clean-009",
+      "text": "設定を保存してアプリを再起動してください。",
+      "errors": []
+    },
+    { "id": "clean-010", "text": "東京は日本の首都です。", "errors": [] },
+    {
+      "id": "clean-011",
+      "text": "料理を作るために野菜を買いました。",
+      "errors": []
+    },
+    {
+      "id": "clean-012",
+      "text": "ご確認のほどよろしくお願いいたします。",
+      "errors": []
+    },
+    {
+      "id": "clean-013",
+      "text": "子どもたちは公園で遊んでいます。",
+      "errors": []
+    },
+    {
+      "id": "clean-014",
+      "text": "データを安全に保管しています。",
+      "errors": []
+    },
+    { "id": "clean-015", "text": "春になると桜が咲きます。", "errors": [] },
+    {
+      "id": "clean-016",
+      "text": "研究結果を報告書にまとめました。",
+      "errors": []
+    },
+    {
+      "id": "clean-017",
+      "text": "ユーザーからの質問に回答します。",
+      "errors": []
+    },
+    {
+      "id": "clean-018",
+      "text": "空は青く、雲が浮かんでいます。",
+      "errors": []
+    },
+    { "id": "clean-019", "text": "明日は在宅勤務の予定です。", "errors": [] },
+    {
+      "id": "clean-020",
+      "text": "音声ファイルをローカルに保存しました。",
+      "errors": []
+    },
+    {
+      "id": "typo-001",
+      "text": "明日の予定については、来週移行にご連絡します。",
+      "errors": [{ "start": 13, "end": 15, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-002",
+      "text": "私は毎朝コーヒーお飲みます。",
+      "errors": [{ "start": 8, "end": 9, "label": "substitution" }]
+    },
+    {
+      "id": "typo-003",
+      "text": "新しい木を机の上に置きました。",
+      "errors": [{ "start": 3, "end": 4, "label": "substitution" }]
+    },
+    {
+      "id": "typo-004",
+      "text": "電車は七時に駅を出発します。",
+      "errors": [{ "start": 3, "end": 4, "label": "substitution" }]
+    },
+    {
+      "id": "typo-005",
+      "text": "この文章には誤りがありませ。",
+      "errors": [{ "start": 13, "end": 13, "label": "deletion" }]
+    },
+    {
+      "id": "typo-006",
+      "text": "週末に友人と英会を見ました。",
+      "errors": [{ "start": 6, "end": 8, "label": "substitution" }]
+    },
+    {
+      "id": "typo-007",
+      "text": "設定を保全してアプリを再起動してください。",
+      "errors": [{ "start": 3, "end": 5, "label": "substitution" }]
+    },
+    {
+      "id": "typo-008",
+      "text": "東京は日本の首度です。",
+      "errors": [{ "start": 6, "end": 8, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-009",
+      "text": "料理を作るために野菜を飼いました。",
+      "errors": [{ "start": 11, "end": 16, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-010",
+      "text": "ご確任のほどよろしくお願いいたします。",
+      "errors": [{ "start": 1, "end": 3, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-011",
+      "text": "子どもたちは公演で遊んでいます。",
+      "errors": [{ "start": 6, "end": 8, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-012",
+      "text": "データを安全に補完しています。",
+      "errors": [{ "start": 7, "end": 9, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-013",
+      "text": "春になると桜が裂きます。",
+      "errors": [{ "start": 7, "end": 9, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-014",
+      "text": "研究結課を報告書にまとめました。",
+      "errors": [{ "start": 2, "end": 4, "label": "substitution" }]
+    },
+    {
+      "id": "typo-015",
+      "text": "ユーザーからの質門に回答します。",
+      "errors": [{ "start": 7, "end": 9, "label": "substitution" }]
+    },
+    {
+      "id": "typo-016",
+      "text": "空は蒼く、雲が浮かんでいます。",
+      "errors": [{ "start": 2, "end": 4, "label": "kanji-conversion_a" }]
+    },
+    {
+      "id": "typo-017",
+      "text": "明日は在卓勤務の予定です。",
+      "errors": [{ "start": 3, "end": 5, "label": "substitution" }]
+    },
+    {
+      "id": "typo-018",
+      "text": "音成ファイルをローカルに保存しました。",
+      "errors": [{ "start": 0, "end": 2, "label": "substitution" }]
+    },
+    {
+      "id": "typo-019",
+      "text": "会議資料をメールで送身しました。",
+      "errors": [{ "start": 9, "end": 11, "label": "substitution" }]
+    },
+    {
+      "id": "typo-020",
+      "text": "来月の計画をチームで相段します。",
+      "errors": [{ "start": 10, "end": 12, "label": "substitution" }]
+    }
+  ]
+}

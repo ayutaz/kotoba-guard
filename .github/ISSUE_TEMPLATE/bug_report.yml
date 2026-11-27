@@ -1,0 +1,45 @@
+name: バグ報告
+description: 再現可能な不具合や安全上の問題を報告する
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        機密文章、個人情報、認証情報は貼り付けないでください。
+        セキュリティ上の問題は SECURITY.md の手順を使ってください。
+  - type: input
+    id: chrome
+    attributes:
+      label: Chrome version
+      description: chrome://version に表示されるバージョン
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: 推論バックエンド
+      options:
+        - wasm
+        - webgpu
+        - 未確認
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順
+      description: 最小限の入力例（機密情報を除く）と再現手順
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待結果と実際の結果
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: ログ・テスト結果
+      description: 本文を含まないエラー、コミット、実行コマンドだけを記載

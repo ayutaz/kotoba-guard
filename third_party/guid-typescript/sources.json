@@ -1,0 +1,52 @@
+{
+  "component": "guid-typescript",
+  "version": "1.0.9",
+  "status": "license-text-blocked",
+  "declaredLicense": "ISC",
+  "licenseEvidence": {
+    "source": "npm registry package metadata for guid-typescript@1.0.9",
+    "url": "https://registry.npmjs.org/guid-typescript/1.0.9",
+    "repository": "https://github.com/NicolasDeveloper/guid-typescript",
+    "gitHead": "1870de806c3db7ba46c5b8a1387c60fc9dda9284",
+    "gitHeadUrl": "https://github.com/NicolasDeveloper/guid-typescript/commit/1870de806c3db7ba46c5b8a1387c60fc9dda9284"
+  },
+  "distribution": {
+    "tarball": "https://registry.npmjs.org/guid-typescript/-/guid-typescript-1.0.9.tgz",
+    "sha512": "Y8T4vYhEfwJOTbouREvG+3XDsjr8E3kIr7uf+JZ0BYloFsttiHU0WfvANVsR7TxNUJa/WpCnw/Ino/p+DeBhBQ==",
+    "sha1": "e35f77003535b0297ea08548f5ace6adb1480ddc",
+    "sha256": "29775e81a4855bc391f853e9285508a465ee50da0ccb562559ae09412a3ababc",
+    "filesObserved": [
+      "package/package.json",
+      "package/README.md",
+      "package/dist/guid.d.ts",
+      "package/dist/guid.js"
+    ]
+  },
+  "licenseText": {
+    "foundInNpmTarball": false,
+    "foundInRepositoryAtGitHead": false,
+    "canonicalTextSaved": false,
+    "reason": "The npm manifest declares ISC, but the immutable npm tarball and the corresponding repository commit contain no LICENSE, license, LICENCE, or COPYING file. No ISC text is synthesized here.",
+    "blocker": "Distribution must retain the upstream license text or obtain an explicit licensing clarification before shipping this dependency."
+  },
+  "currentWebGpuBundleAudit": {
+    "scope": "The current production WebGPU bundle externalizes legacy ONNX Runtime WebGL code and does not distribute guid-typescript.",
+    "bundlePath": "dist/extension/wasm/ort.webgpu.min.mjs",
+    "bundleSha256": "329cd956772397a1aedd668e911195d39afefb182f6fc14aafa4f08ac8d8f379",
+    "sourceMapAuditInput": "node_modules/onnxruntime-web/dist/ort.webgpu.min.mjs.map",
+    "sourceMapBytes": 405520,
+    "sourceMapSha256": "be90120f2752231a09e9470d98ba5877d8e0835455c6ab1a8196700207335b80",
+    "sourceCount": 42,
+    "sourcePathMatches": {
+      "guid-typescript": 0,
+      "onnxjs": 0
+    },
+    "sourceContentMatches": {
+      "guid-typescript": 0,
+      "emptyguid": 0,
+      "uuid": 0
+    },
+    "verification": "The distributed WebGPU module hash equals the resolved onnxruntime-web 1.31.1 module hash. The source map is retained only as a local audit input and is not part of the extension package."
+  },
+  "checkedOn": "2026-11-26"
+}

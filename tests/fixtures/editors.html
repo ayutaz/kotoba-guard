@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+  <meta charset="utf-8" />
+  <title>Kotoba Guard editor fixture</title>
+  <style>
+    body {
+      font: 18px sans-serif;
+      max-width: 800px;
+      margin: 30px auto;
+      background: #f6f8fa;
+      color: #152735;
+    }
+    textarea,
+    input,
+    [contenteditable] {
+      display: block;
+      width: 95%;
+      padding: 12px;
+      margin: 12px 0;
+      min-height: 30px;
+      font: inherit;
+    }
+    textarea {
+      height: 140px;
+    }
+    [contenteditable] {
+      background: white;
+      border: 1px solid #888;
+      min-height: 80px;
+    }
+  </style>
+  <h1>日本語入力テスト</h1>
+  <label>文章<textarea id="text" aria-label="文章"></textarea></label>
+  <label>短文<input id="input" type="text" aria-label="短文" /></label>
+  <div
+    id="editable"
+    contenteditable="true"
+    role="textbox"
+    aria-label="編集欄"
+  ></div>
+  <label>パスワード<input id="password" type="password" /></label>
+  <label>認証コード<input id="otp" autocomplete="one-time-code" /></label>
+  <label>カード<input id="card" autocomplete="cc-number" /></label>
+</html>

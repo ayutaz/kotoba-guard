@@ -1,0 +1,162 @@
+name: Browser E2E
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      real_model:
+        description: Run the real-model browser path after model validation has produced assets
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Chromium E2E (fixture/mock)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      KOTOBA_GUARD_E2E_MODE: mock
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .node-version
+
+      - name: Install locked Node dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Run fixture browser tests
+        run: npm run test:e2e
+
+      - name: Summarize fixture browser result
+        if: always()
+        shell: bash
+        env:
+          KOTOBA_UPLOAD_ARTIFACTS: ${{ vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS }}
+        run: |
+          {
+            echo "## Kotoba Guard browser E2E"
+            echo "- Source: \`${GITHUB_SHA}\`"
+            echo "- Job result: \`${{ job.status }}\`"
+            echo "- Artifact upload: \`${KOTOBA_UPLOAD_ARTIFACTS:-false}\` (opt-in)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload browser reports
+        if: ${{ always() && vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: browser-e2e-report
+          path: |
+            artifacts/playwright.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  real-model:
+    name: Chromium E2E (real model, manual)
+    if: github.event_name == 'workflow_dispatch' && inputs.real_model
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      KOTOBA_GUARD_E2E_MODE: real
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .node-version
+
+      - name: Set up uv and Python 3.12
+        uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
+        with:
+          version: 0.12.20
+          python-version: "3.12"
+          enable-cache: "false"
+
+      - name: Install locked dependencies
+        run: |
+          uv sync --locked
+          npm ci
+
+      - name: Download pinned upstream model
+        run: uv run --locked python scripts/model_pipeline.py download
+
+      - name: Run CPU reference inference
+        run: uv run --locked python scripts/model_pipeline.py reference --text '明日の予定については、来週移行にご連絡します。'
+
+      - name: Export and convert pinned model on CPU
+        run: |
+          uv run --locked python scripts/model_pipeline.py export
+          uv run --locked python scripts/model_pipeline.py convert
+      - name: Prepare browser model assets from the pinned snapshot
+        shell: bash
+        run: |
+          revision=$(uv run --locked python -c "from scripts.model_pipeline import EXPECTED_REVISION; print(EXPECTED_REVISION)")
+          source_dir="models/upstream/${revision}"
+          target_dir="models/converted/${revision}"
+          for file in config.json tokenizer.json tokenizer_config.json LICENSE; do
+            cp "${source_dir}/${file}" "${target_dir}/${file}"
+          done
+          uv run --locked python scripts/model_pipeline.py manifest
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build extension with real-model assets
+        run: npm run build
+
+      - name: Run real-model browser tests
+        run: npm run test:e2e
+
+      - name: Summarize real-model browser result
+        if: always()
+        shell: bash
+        env:
+          KOTOBA_UPLOAD_ARTIFACTS: ${{ vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS }}
+        run: |
+          {
+            echo "## Kotoba Guard real-model browser E2E"
+            echo "- Source: \`${GITHUB_SHA}\`"
+            echo "- Job result: \`${{ job.status }}\`"
+            echo "- Artifact upload: \`${KOTOBA_UPLOAD_ARTIFACTS:-false}\` (opt-in)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload real-model evidence
+        if: ${{ always() && vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: browser-e2e-real-model
+          path: |
+            artifacts/browser-real.json
+            artifacts/automatic-real.json
+            dist/extension/models/manifest.json
+          if-no-files-found: ignore
+          retention-days: 14

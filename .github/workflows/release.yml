@@ -1,0 +1,196 @@
+name: Preview release
+
+# A local prepare run seals one source-bound release directory into one
+# bootstrap bundle. This workflow only downloads, verifies, and optionally
+# publishes that exact bundle; it never rebuilds or converts a model.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version contained in the sealed bundle
+        required: true
+        type: string
+      source_commit:
+        description: Full source commit bound by the sealed bundle
+        required: true
+        type: string
+      bundle_url:
+        description: Same-repository GitHub release asset URL for the sealed bundle
+        required: true
+        type: string
+      bundle_sha256:
+        description: SHA-256 of the sealed bundle ZIP
+        required: true
+        type: string
+      publish:
+        description: Publish the verified prerelease after both checks succeed
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  prepare:
+    name: Verify sealed preview
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      SOURCE_COMMIT: ${{ inputs.source_commit }}
+      BUNDLE_URL: ${{ inputs.bundle_url }}
+      BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
+      PUBLISH_REQUESTED: ${{ inputs.publish }}
+      UV_CACHE_DIR: ${{ github.workspace }}/.cache/uv
+
+    steps:
+      - name: Validate release input hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$BUNDLE_SHA256" =~ ^[0-9a-fA-F]{64}$ ]]
+          prefix="https://github.com/${GITHUB_REPOSITORY}/releases/download/"
+          [[ "$BUNDLE_URL" == "$prefix"* ]]
+
+      - name: Check out tested source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+          ref: ${{ inputs.source_commit }}
+          persist-credentials: false
+
+      - name: Set up uv and Python 3.12
+        uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
+        with:
+          version: 0.12.20
+          python-version: "3.12"
+          enable-cache: "false"
+
+      - name: Install locked validation dependencies
+        run: uv sync --locked
+
+      - name: Verify checked source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+
+      - name: Download and verify sealed bundle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .cache/bootstrap .cache
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            -H "Authorization: Bearer $GH_TOKEN" "$BUNDLE_URL" \
+            -o .cache/bootstrap/release-bundle.zip
+          echo "$BUNDLE_SHA256  .cache/bootstrap/release-bundle.zip" | sha256sum -c -
+          uv run --locked python scripts/preview_release.py extract \
+            --archive .cache/bootstrap/release-bundle.zip \
+            --destination .cache/release
+
+      - name: Verify source, version, and package evidence
+        run: |
+          uv run --locked python scripts/preview_release.py verify \
+            --release-dir .cache/release \
+            --source-commit "$SOURCE_COMMIT" \
+            --version "$RELEASE_VERSION"
+
+      - name: Summarize verification
+        if: always()
+        run: |
+          {
+            echo "## Kotoba Guard preview verification"
+            echo "- Source: \`$SOURCE_COMMIT\`"
+            echo "- Version: \`$RELEASE_VERSION\`"
+            echo "- Publish requested: \`$PUBLISH_REQUESTED\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    name: Publish prerelease
+    if: ${{ inputs.publish == true }}
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      SOURCE_COMMIT: ${{ inputs.source_commit }}
+      BUNDLE_URL: ${{ inputs.bundle_url }}
+      BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
+      PUBLISH_REQUESTED: ${{ inputs.publish }}
+      UV_CACHE_DIR: ${{ github.workspace }}/.cache/uv
+
+    steps:
+      - name: Validate publish input hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$BUNDLE_SHA256" =~ ^[0-9a-fA-F]{64}$ ]]
+          prefix="https://github.com/${GITHUB_REPOSITORY}/releases/download/"
+          [[ "$BUNDLE_URL" == "$prefix"* ]]
+
+      - name: Check out release source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+          ref: ${{ inputs.source_commit }}
+          persist-credentials: false
+
+      - name: Set up uv and Python 3.12
+        uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
+        with:
+          version: 0.12.20
+          python-version: "3.12"
+          enable-cache: "false"
+
+      - name: Install locked validation dependencies
+        run: uv sync --locked
+
+      - name: Validate and download the same sealed bundle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$BUNDLE_SHA256" =~ ^[0-9a-fA-F]{64}$ ]]
+          prefix="https://github.com/${GITHUB_REPOSITORY}/releases/download/"
+          [[ "$BUNDLE_URL" == "$prefix"* ]]
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          mkdir -p .cache/bootstrap .cache
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            -H "Authorization: Bearer $GH_TOKEN" "$BUNDLE_URL" \
+            -o .cache/bootstrap/release-bundle.zip
+          echo "$BUNDLE_SHA256  .cache/bootstrap/release-bundle.zip" | sha256sum -c -
+          uv run --locked python scripts/preview_release.py extract \
+            --archive .cache/bootstrap/release-bundle.zip \
+            --destination .cache/release
+
+      - name: Verify and publish the same sealed bundle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          uv run --locked python scripts/preview_release.py verify \
+            --release-dir .cache/release \
+            --source-commit "$SOURCE_COMMIT" \
+            --version "$RELEASE_VERSION"
+          uv run --locked python scripts/preview_release.py publish \
+            --release-dir .cache/release \
+            --tag "v${RELEASE_VERSION}" \
+            --title "Kotoba Guard ${RELEASE_VERSION}" \
+            --publish
+
+      - name: Summarize publication
+        if: always()
+        run: |
+          {
+            echo "## Kotoba Guard preview publication"
+            echo "- Source: \`$SOURCE_COMMIT\`"
+            echo "- Version: \`$RELEASE_VERSION\`"
+            echo "- Publish requested: \`$PUBLISH_REQUESTED\`"
+          } >> "$GITHUB_STEP_SUMMARY"

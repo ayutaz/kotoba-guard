@@ -1,0 +1,8 @@
+{
+  "schema_version": "frozen-evaluator-v1",
+  "origin_commit": "af8cd9480431052da280bc0e536f8ae5f65eeb62",
+  "origin_path": "scripts/run_corpus_evaluation.py",
+  "license": "MIT",
+  "sha256": "304082a891f049473c26a5d383b066e2135eb9bab23f3bc919da4df0ffe1e7da",
+  "bytes": 16805
+}

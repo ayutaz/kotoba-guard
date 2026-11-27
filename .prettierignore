@@ -1,0 +1,16 @@
+node_modules
+.venv
+.cache
+uv.lock
+package-lock.json
+models/upstream
+models/converted
+extension/public/models
+extension/public/wasm
+dist
+artifacts
+coverage
+test-results
+playwright-report
+.agents
+tests/fixtures/tokenizer-reference.json

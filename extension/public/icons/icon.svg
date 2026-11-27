@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
+  role="img" aria-label="Kotoba Guard">
+  <title>Kotoba Guard</title>
+  <path fill="#0b1f3a" stroke="#2dd4bf" stroke-width="8" stroke-linejoin="round"
+    d="M128 18 218 52v64c0 58-37 103-90 122-53-19-90-64-90-122V52z"/>
+  <path fill="none" stroke="#f8fafc" stroke-width="18"
+    stroke-linecap="round" stroke-linejoin="round"
+    d="M86 88h84v78H86"/>
+</svg>

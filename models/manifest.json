@@ -1,0 +1,8 @@
+{
+  "model_id": "sbintuitions/ja-typo-detector-modernbert-ja-base-30m",
+  "revision": "8d640720bddeb64c89dc1fa7780c3ea29fa523e8",
+  "license": "mit",
+  "task": "token-classification",
+  "labels_source": "config.json",
+  "artifacts": {}
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kotoba Guard プライバシー</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+      }
+      body {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.7;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      h2 {
+        font-size: 1.1rem;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Kotoba Guard プライバシー方針</h1>
+    <p>
+      Kotoba
+      Guardは、許可されたサイトの入力欄を端末内で処理する日本語誤字検出拡張機能です。
+    </p>
+    <h2>外部送信と保存</h2>
+    <p>
+      入力文章、検出結果、検出履歴は外部へ送信せず、永続保存しません。推論は同梱されたJavaScript、WASM、モデルで実行します。保存するのは有効化状態や許可サイトなどの設定です。アカウント、APIキー、テレメトリーは必要ありません。
+    </p>
+    <h2>機密入力</h2>
+    <p>
+      パスワード、支払い情報、認証コード、hidden・file入力などは除外します。サイトが適切な属性を付けていない欄を完全に判別できるとは限らないため、機密性の高いサイトでは許可しないでください。
+    </p>
+    <h2>検出結果</h2>
+    <p>
+      使用モデルはModernBERT日本語誤字検出30Mです。モデルは誤字の可能性を検出しますが、修正文章を生成したり自動書き換えを行ったりしません。信頼度は校正された正解確率を保証する値ではなく、誤検出や見逃しがあります。
+    </p>
+    <p>詳細は配布元リポジトリのPrivacy Policyをご確認ください。</p>
+  </body>
+</html>

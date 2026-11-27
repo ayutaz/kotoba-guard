@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .node-version
+
+      - name: Set up uv and Python 3.12
+        uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
+        with:
+          version: 0.12.20
+          python-version: "3.12"
+          enable-cache: "false"
+
+      - name: Install locked Python dependencies
+        run: uv sync --locked
+
+      - name: Install locked Node dependencies
+        run: npm ci
+
+      - name: Check toolchain
+        run: uv run --locked python scripts/harness/check_environment.py
+
+      - name: Run cross-platform quality harness
+        run: uv run --locked python scripts/harness/run_checks.py
+
+      - name: Summarize bounded CI result
+        if: always()
+        shell: bash
+        env:
+          KOTOBA_UPLOAD_ARTIFACTS: ${{ vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS }}
+        run: |
+          {
+            echo "## Kotoba Guard CI"
+            echo "- Source: \`${GITHUB_SHA}\`"
+            echo "- Job result: \`${{ job.status }}\`"
+            echo "- Artifact upload: \`${KOTOBA_UPLOAD_ARTIFACTS:-false}\` (opt-in)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload quality reports
+        if: ${{ always() && vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: quality-${{ matrix.os }}
+          path: |
+            artifacts/checks.json
+            coverage/coverage-summary.json
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Kotoba Guard</title>
+  </head>
+  <body>
+    <main class="popup" aria-labelledby="title">
+      <header>
+        <div>
+          <h1 id="title">Kotoba Guard</h1>
+          <p class="muted">日本語の誤字脱字を端末内で検出</p>
+        </div>
+        <span id="model-state" class="badge">確認中</span>
+      </header>
+      <p id="model-name" class="model-name">
+        モデル: ModernBERT 日本語誤字検出 30M（未初期化）
+      </p>
+      <section class="card" aria-label="拡張機能設定">
+        <label class="switch-row"
+          ><span>拡張機能を有効にする</span
+          ><input id="global-toggle" type="checkbox" /><span
+            class="switch"
+            aria-hidden="true"
+          ></span
+        ></label>
+        <p id="site-name" class="site-name">このサイト</p>
+        <button id="site-toggle" type="button" class="secondary">
+          このサイトで有効にする
+        </button>
+        <button id="manual-check" type="button" class="primary">
+          今すぐチェック
+        </button>
+      </section>
+      <p id="detection-count" class="status">このタブの直近の検出: 0件</p>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <footer>
+        <span id="backend-state">バックエンド: 未初期化</span
+        ><a href="privacy.html" target="_blank">プライバシー</a
+        ><a
+          href="https://github.com/ayutaz/kotoba-guard"
+          target="_blank"
+          rel="noreferrer"
+          >GitHub</a
+        >
+      </footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,129 @@
+name: Model Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_conversion:
+        description: Download the pinned upstream model and create FP32, INT8, and FP16 ONNX files
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  cpu-model:
+    name: Pinned model (CPU)
+    if: inputs.run_conversion
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      TOKENIZERS_PARALLELISM: "false"
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up uv and Python 3.12
+        uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
+        with:
+          version: 0.12.20
+          python-version: "3.12"
+          enable-cache: "false"
+
+      - name: Install locked Python dependencies
+        run: uv sync --locked
+
+      - name: Download the pinned upstream revision
+        run: uv run --locked python scripts/model_pipeline.py download
+
+      - name: Run CPU reference inference
+        run: uv run --locked python scripts/model_pipeline.py reference --text '明日の予定については、来週移行にご連絡します。'
+
+      - name: Export FP32 ONNX on CPU
+        run: uv run --locked python scripts/model_pipeline.py export
+
+      - name: Create INT8 and FP16 variants on CPU
+        run: uv run --locked python scripts/model_pipeline.py convert
+
+      - name: Prepare browser model assets from the pinned snapshot
+        shell: bash
+        run: |
+          revision=$(uv run --locked python -c "from scripts.model_pipeline import EXPECTED_REVISION; print(EXPECTED_REVISION)")
+          source_dir="models/upstream/${revision}"
+          target_dir="models/converted/${revision}"
+          for file in config.json tokenizer.json tokenizer_config.json LICENSE; do
+            cp "${source_dir}/${file}" "${target_dir}/${file}"
+          done
+
+      - name: Write conversion manifest with hashes
+        run: uv run --locked python scripts/model_pipeline.py manifest
+
+      - name: Run real-model ONNX parity benchmark
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          uv run --locked python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.model_pipeline import CONVERTED_ROOT, EXPECTED_REVISION, onnx_infer, reference_infer
+
+          text = "明日の予定については、来週移行にご連絡します。"
+          reference = reference_infer(text)
+          expected = [(item["start"], item["end"], item["label_id"]) for item in reference["tokens"]]
+          rows = []
+          for filename in ("model.onnx", "model_quantized.onnx", "model_fp16.onnx"):
+              result = onnx_infer(CONVERTED_ROOT / "onnx" / filename, text)
+              actual = [(item["start"], item["end"], item["label_id"]) for item in result["detections"]]
+              rows.append({"model": filename, "reference_tokens": len(expected), "onnx_detections": len(actual), "elapsed_ms": result["elapsed_ms"], "detections": result["detections"]})
+              if filename == "model.onnx":
+                  expected_detections = [(item["start"], item["end"], item["label_id"]) for item in reference["detections"]]
+                  if actual != expected_detections:
+                      raise SystemExit(f"FP32 token classification parity failed: {actual!r} != {expected_detections!r}")
+          Path("artifacts/model-parity.json").write_text(json.dumps({"revision": EXPECTED_REVISION, "text": text, "reference_elapsed_ms": reference["elapsed_ms"], "results": rows}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+
+      - name: Run model metadata and package regression tests
+        run: uv run --locked pytest -q tests/model tests/test_package.py
+
+      - name: Evaluate all variants on the immutable synthetic regression set
+        run: uv run --locked python scripts/evaluation.py --check-conversion --output artifacts/benchmarks/synthetic-v1.json
+
+      - name: Verify converted inventory
+        shell: bash
+        run: |
+          revision=$(uv run --locked python -c "from scripts.model_pipeline import EXPECTED_REVISION; print(EXPECTED_REVISION)")
+          test -f "models/converted/${revision}/onnx/model.onnx"
+          test -f "models/converted/${revision}/onnx/model_quantized.onnx"
+          test -f "models/converted/${revision}/onnx/model_fp16.onnx"
+          test -f "models/converted/${revision}/manifest.json"
+
+      - name: Summarize model validation result
+        if: always()
+        shell: bash
+        env:
+          KOTOBA_UPLOAD_ARTIFACTS: ${{ vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS }}
+        run: |
+          {
+            echo "## Kotoba Guard model validation"
+            echo "- Source: \`${GITHUB_SHA}\`"
+            echo "- Job result: \`${{ job.status }}\`"
+            echo "- Artifact upload: \`${KOTOBA_UPLOAD_ARTIFACTS:-false}\` (opt-in)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload model validation evidence
+        if: ${{ always() && vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: model-validation-${{ github.run_id }}
+          path: |
+            models/converted/*/manifest.json
+            artifacts/model-parity.json
+            artifacts/benchmarks/synthetic-v1.json
+          if-no-files-found: ignore
+          retention-days: 14

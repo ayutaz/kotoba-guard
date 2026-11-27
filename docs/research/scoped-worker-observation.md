@@ -1,0 +1,51 @@
+# 親sessionに束縛したWorker観測
+
+2026-11-27事前登録。[Chrome116モデルなしprobe](chrome116-worker-visibility.md)のclean905c773は、Workerのping/pongが動作してもroot getTargetsの全14一覧にWorkerが現れず、eventには同じWorkerの生成・接続が現れることを示した。ただしrootのflat通知だけでは、Offscreen親との結び付きやIDごとの終了を十分に証明していない。[実モデル7554a69](current-runtime-chrome116.md)の失敗原因は未確定のまま保持する。
+
+## 仮説と実装
+
+所有するOffscreen文書へnon-flat sessionを作り、そのsession内のTarget.setAutoAttachから届く子Worker通知を台帳化すれば、root inventoryに依存せず生成と終了を観測できる。既存のworker-targets.tsとidle.real.spec.ts、製品コード、モデル、配布物は今回変更しない。候補observerを別のモデルなしレーンで先に検証する。
+
+rootのgetTargetsは親の在否だけに使う。URL完全一致かつpage/other/background_pageの親1件を選び、tab wrapperは除外する。Target.attachToTarget({flatten:false})で親に接続し、Target.sendMessageToTargetで親sessionへTarget.setAutoAttach({autoAttach:true,waitForDebuggerOnStart:false,flatten:false,filter:[{type:"worker"},{exclude:true}]})を送る。固定Chrome116公式PDLに含まれるメソッドを使い、実行成否は別に検証する。
+
+同じ親sessionを経由したexact worker.js/type workerのattached通知だけがWorkerを追加できる。ACK前の通知はbufferするが、ACK成功と親のpostflight確認まで公開しない。重複・foreign session・退役IDを拒否し、世代交代で旧通知を無効化する。detachだけでは破棄と断定せずunavailableとする。targetDestroyedまたは所有親の不在確認だけが終了の根拠になる。不正状態は最後の既知Workerの破棄で成功に戻さない。親の変更、CDP切断、timeout、dispose後もfail-closedとする。
+
+親への接続ACKだけで子の空集合を確定しない。親あり・正当なWorker通知未取得の間はunavailableを維持する。初回の正当な通知を得た後に、既知Workerの破棄による0件を公開できる。
+
+同時observeはsingleflightとし、各CDP操作と親RPCは5秒で打ち切る。取り消せないコマンドが失敗した後は新しい問い合わせを蓄積しない。disposeは待機操作を無効化し、遅れて完成した親接続も解放する。未知状態は0件に読み替えない。初回の空inventory成功前もunavailableとする。
+
+このobserverは短期診断専用で、製品の常駐処理には組み込まない。active Workerは最大256件とし、退役したtarget/sessionのIDは試行中保持する。世代数が無制限の長期利用へ転用する場合は、退役台帳の上限設計を別途必要とする。
+
+## 登録するモデルなし試行
+
+この実装・unit・spec/config・本書を含む次のclean40桁sourceで、Windowsの固定Chrome for Testing116.0.5845.96を1回だけ起動する。成功/失敗で予算を終了し、filter変更・別attach・別browserへのfallback・再試行はしない。既存probeの6ファイルping/pong fixtureを再利用し、モデル/Tokenizer/ONNX/WASM/HTTP server/文章入力は使わない。
+
+observerをOffscreen作成前に用意し、root discoveryを開始する。初期親不在のcomplete0を確認する。Offscreenを1回作成し、Worker pongとgetContextsの文書1件を確認後、親sessionに束縛されたWorker complete1とparentBound=trueを確認する。明示close後にgetContexts0とobserver complete0/parentBound=falseを確認する。root inventoryにWorkerが現れることは条件にしない。unknown/rejectを0と扱わず、失敗として記録する。
+
+test180秒、launch30秒、各操作5秒、観測pollは最大10秒、workers1/retries0。cleanupはobserver→root CDP→contextを各5秒以内で全段試み、途中失敗後も次段へ進む。cleanup失敗はtest全体の失敗とする。ネットワーク監視開始後の外部HTTP/WebSocketとpage errorは0件。起動前通信を含む全context監査や製品プライバシーの受け入れは今回代替しない。
+
+reportはsource、tree/clean、controlのGit blobとraw SHA、browserVersion、phase、Worker自身のID、状態/件数、fixture6ファイルのSHA、cleanupと成否だけを保存する。URL本文、foreign ID、例外本文、private instance marker、ユーザー文章は保存しない。副作用前にreportを排他的作成で予約し、成功・失敗ともcleanup後に内容を確定する。
+
+外側binderは実行したscript自身とsource archive、exe/ZIP/公式PDLを固定し、実行前後で全78製品資産、11receipt701先行証拠、旧Chrome27証拠、未実行preflight8証拠、旧ZIPを照合する。新出力はartifacts/scoped-worker-observer/<source>/で、既存証拠を上書きしない。fixtureも6ファイルを前後比較する。source/runtime/実験結果を付け替えない。
+
+## 判定と次の境界
+
+このレーンは上記すべてと単体テスト・独立レビューの成功を必要とする。成功しても製品の実モデルidle2回、メモリ改善、CPU/WASM parity、精度、native操作、実サービス、remote CI、M5完了にはしない。新observerを実モデル試験へ採用する場合は、今回の結果を凍結した後で既存idle helperとの接続変更をTDD・レビューし、別source/別予算として登録する。
+
+失敗時はpartial report/trace/cleanupを凍結し、同条件を繰り返さない。旧7554/30df/905試行の結果もそのまま保持する。
+
+## 実行前の検証
+
+親session台帳とCDP transportの42 unit、既存を含む全TypeScript463件が成功した。初回module不在、ACK/postflight前の公開、親生成と空inventoryの競合、親ID矛盾、hard error後の誤った0件復帰、子通知なしの親接続、遅延attach解放などのRedを記録して修正した。途中のassert配置訂正とformat待ち失敗も保持する。dispose期限後にraw attachが解決してもcleanup処理が継続しdetachを試みることを追加回帰で確認した。raw操作が永久に解決しない場合はcleanup失敗を維持する。
+
+全TS463件とnpm checkは成功。transport/ledgerの独立レビューで検出した問題を修正済み。これらはモックを使う単体検証であり、Chrome116の実CDP実行成功はまだ主張しない。
+
+## 実行結果（成功、予算終了）
+
+clean source `c1200fe865a9b52b28fbb23ca187d0c51ab5285f`、tree `34267b2f4db0be06e8c460ebab0e181daa723637`で登録した1回を完了した。Windows11/Node24.15.0/Chrome116.0.5845.96、モデル推論0、Playwright1件passed・skip/retry/flaky0、外側exit0。親session由来のWorker集合はcompleteの0→1→0件、parentBoundはfalse→true→false、getContextsは0→1→0を確認した。Worker pongも成功した。
+
+monitor設置後の外部通信/page errorは0件。cleanupはobserver0.8444ms、CDP7.3345ms、context4,089.9606msで各5秒以内に完了した。全体18,257.5623ms、外側process20,906.7067ms。所要時間をモデル推論性能と扱わない。実source/control8、fixture6資産、全78製品資産、先行11receipt701証拠、旧Chrome27証拠/preflight8証拠/旧ZIP、exe/ZIP/PDLは前後一致した。
+
+出力は `artifacts/scoped-worker-observer/c1200fe865a9b52b28fbb23ca187d0c51ab5285f/`。archiveは321 tracked files、3,389,440 bytes、SHA `406b94161cea0fde35269b3ed72f3579089c401dc53e4d74428e409f94b249e3`。report SHA `2ae84891a06ee7afd2b0acf6d8d9bd5c89cc41b9867953d01554aa97bae91776`、preflight SHA `42804e4b2adcede3cbc72f2a46d5576bc94fe9bd76b78ab52286951f9ccbda9c`。新37証拠を固定し、receipt SHA `a6422214e254b70fb9564e3366188d7bdf4433c537455c82c99e879143114d49`、合計12receipt738証拠を保護する。失敗保存用binderは起動OSErrorのexit127記録、破損JSONの失敗receipt、URL拒否もモデルなしprobeで確認した。
+
+結果を独立レビューしblockingなし。親non-flat session経由の観測が、このモデルなしfixtureで成立した根拠として採用する。製品の実モデルidle互換性・資源改善や全M5は未達で、7554の失敗原因も確定しない。予算は終了し、このprobeを反復しない。次は既存idle試験への接続変更をTDD・レビューし、[実モデルの別試行](scoped-idle-chrome116.md)を登録する。

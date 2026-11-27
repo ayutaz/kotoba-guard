@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "protocol_id": "jwtd-v1",
+  "frozen_before_inference": "2026-11-27",
+  "model_revision": "8d640720bddeb64c89dc1fa7780c3ea29fa523e8",
+  "offset_unit": "unicode_codepoint",
+  "primary_metric": "labeled_diff_event_one_to_one_containment",
+  "argmax_baseline_threshold": 0.0,
+  "default_product_threshold": 0.5,
+  "development_thresholds": [0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99],
+  "selection": "satisfy precision/recall/clean targets, then maximize recall, precision, and prefer lower threshold",
+  "no_admissible_threshold": "retain 0.5 for diagnosis, acceptance remains failed",
+  "targets": {
+    "precision_min": 0.95,
+    "recall_min": 0.8,
+    "clean_record_false_positive_rate_max": 0.02,
+    "minimum_clean_records": 1000,
+    "quantized_f1_drop_max": 0.01,
+    "fp32_max_absolute_logit_delta": 0.001
+  },
+  "held_out": "official test split, no threshold tuning on held-out results",
+  "development": "fixed training-exposed calibration subset; exclude all test/gold pages and normalized texts",
+  "gold": "corrected text clean-only auxiliary evaluation; no inferred error categories",
+  "diff_alignment": "enumerate full pre-to-post joint reconstructions (10000 search visits maximum); preserve equivalent alternatives; quarantine unknown labels, inconsistency, or search overflow with counts",
+  "alternative_alignment_scoring": "maximize one-to-one matches over one complete reconstruction per primary metric, never union event positions; labeled per-class counts use the same selected labeled scenario",
+  "canonical_diagnostics": "raw exact and token diagnostics use the first deterministic full reconstruction; not primary acceptance for equivalent duplicate edits",
+  "zero_width_primary": "event gap contained inclusively by predicted span",
+  "zero_width_token_diagnostic": "containing token, final ordinary token at document end; project-specific rule",
+  "conflicting_token_labels": "count unscorable projection documents; keep their events in primary metrics",
+  "truncation": "forbidden; over-limit records invalidate inference",
+  "diagnostics": [
+    "unlabeled containment",
+    "raw character exact spans",
+    "token-projected spans",
+    "non-OK token scores",
+    "record any/all location and label hits",
+    "label-wise scores",
+    "clean record false-positive rate and descriptive Wilson interval",
+    "argmax agreement and logit differences"
+  ],
+  "scope": "published evaluation definitions inform this protocol; upstream private preprocessing/scoring is not exactly reproduced"
+}

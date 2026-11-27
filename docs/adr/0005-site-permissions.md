@@ -1,0 +1,5 @@
+# ADR-0005: サイト単位の許可
+
+採用。既定のhost permissionと静的な全サイトContent Scriptを宣言しない。ユーザーがpopupで選択したoriginのoptional host permissionを要求し、許可と設定の両方があるサイトへ動的にContent Scriptを登録する。手動チェックは実際のaction操作によるactiveTabと一回限りの短い背景grantを使う。
+
+設定だけでは権限を代替しない。権限撤回時に設定・登録・既存Content Scriptの状態を同期し、入力を読む前に機密属性を除外する。ネイティブの許可ダイアログの操作はブラウザUIの検証項目として残す。fixtureの事前許可で自動検出が動いても、この確認を完了扱いしない。

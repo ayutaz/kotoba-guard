@@ -1,0 +1,5 @@
+# ADR-0007: 外部通信を必要としない実行
+
+採用。拡張ページのCSPはselfとWASM実行に限定し、remote tokenizer/model fallbackとbrowser cacheによる入力保存を使用しない。入力由来HTMLを挿入せず、本文のログ・永続保存・telemetryを禁止する。web accessible resourcesも宣言しない。
+
+CSPは全通信経路を一括保証しない。固定されたローカルfixtureにおける初回オフライン推論、通信監視、storage検査、コードと依存の監査を併用する。fixture自身に外部通信を持たせず、拡張由来の観測を明確にする。監視範囲外や実サービス・全ブラウザを含む完全な安全性は主張しない。

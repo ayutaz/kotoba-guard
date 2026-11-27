@@ -1,0 +1,137 @@
+name: Security
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-audit:
+    name: Dependency audit and SBOM
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .node-version
+
+      - name: Set up uv and Python 3.12
+        uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6
+        with:
+          version: 0.12.20
+          python-version: "3.12"
+          enable-cache: "false"
+
+      - name: Install locked dependencies
+        run: |
+          uv sync --locked
+          npm ci
+          mkdir -p artifacts
+
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=high --json > artifacts/npm-audit.json
+
+      - name: Export locked Python requirements
+        run: uv export --locked --format requirements-txt --no-dev --output-file artifacts/uv-requirements.txt
+
+      - name: Audit installed locked Python dependencies without silent skips
+        run: uv run --locked python scripts/audit_python.py
+
+      - name: Generate npm CycloneDX SBOM
+        run: npm sbom --sbom-format cyclonedx > artifacts/npm-sbom.json
+
+      - name: Record CodeQL availability
+        if: always()
+        shell: bash
+        env:
+          KOTOBA_CODEQL_REQUESTED: ${{ vars.KOTOBA_GUARD_CODEQL }}
+          KOTOBA_CODEQL_PRIVATE_ENABLED: ${{ vars.KOTOBA_GUARD_CODEQL_PRIVATE_ENABLED }}
+          KOTOBA_REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
+        run: |
+          {
+            echo "## CodeQL gate"
+            if [[ "$KOTOBA_CODEQL_REQUESTED" == "true" && ( "$KOTOBA_REPOSITORY_VISIBILITY" == "public" || "$KOTOBA_CODEQL_PRIVATE_ENABLED" == "true" ) ]]; then
+              echo "- CodeQL job: eligible and requested."
+            else
+              echo "- CodeQL job: skipped; this is not a security pass."
+              echo "- Enable the preconfigured repository variable only after billing and Code Security review."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Summarize dependency audit result
+        if: always()
+        shell: bash
+        env:
+          KOTOBA_UPLOAD_ARTIFACTS: ${{ vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS }}
+        run: |
+          {
+            echo "## Kotoba Guard dependency audit"
+            echo "- Source: \`${GITHUB_SHA}\`"
+            echo "- Job result: \`${{ job.status }}\`"
+            echo "- Artifact upload: \`${KOTOBA_UPLOAD_ARTIFACTS:-false}\` (opt-in)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit evidence
+        if: ${{ always() && vars.KOTOBA_GUARD_UPLOAD_ARTIFACTS == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: security-audit
+          path: |
+            artifacts/npm-audit.json
+            artifacts/python-audit-scope.json
+            artifacts/python-pip-audit.json
+            artifacts/npm-sbom.json
+          if-no-files-found: error
+          retention-days: 30
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    if: ${{ vars.KOTOBA_GUARD_CODEQL == 'true' && (github.event.repository.visibility == 'public' || vars.KOTOBA_GUARD_CODEQL_PRIVATE_ENABLED == 'true') }}
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@3e6af16ff035267728e2ebc35df5d4c4cf249f81
+        with:
+          languages: javascript-typescript,python
+          build-mode: none
+          queries: security-and-quality
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@3e6af16ff035267728e2ebc35df5d4c4cf249f81
+        with:
+          category: /language:javascript-typescript,python
+
+      - name: Summarize CodeQL result
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Kotoba Guard CodeQL"
+            echo "- Source: \`${GITHUB_SHA}\`"
+            echo "- Job result: \`${{ job.status }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
