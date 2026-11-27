@@ -4,15 +4,15 @@
 
 The default developer build uses the older QUInt8 model path. Use the [isolated preview procedure](docs/release.md#ローカルpreviewの作成) for the current preview.
 
-A GitHub preview is being prepared. Commit `e627333` fixed audit cleanup and passed a real-model audit of the saved preview. Publication automation review and final ZIP validation remain. Optimization and additional features are deferred. See [current status](docs/status.md).
+[v0.1.0 preview](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0) is available as an unpacked extension ZIP with the model and WASM bundled. The [release validation record](docs/validation-v0.1.0.md) identifies the tested source, hashes, real-model E2E, traffic audit and Windows/Linux CI results.
 
 Kotoba Guard is a Chrome extension for detecting Japanese typos in the browser. It bundles the model and inference runtime with the extension and processes input locally.
 
-**This is a local development build. MVP acceptance is incomplete and nothing has been published.** Offline manual and automatic detection, generic editors and synthetic IME events have passed real-model tests. Physical IME, native permission UI, real services and all-platform validation of the current runtime remain incomplete.
+**This is a preview. Formal MVP acceptance remains incomplete.** Offline manual/automatic checks and generic editors are tested. Physical IME, native permission UI, real services and all-platform validation remain incomplete.
 
-The latest tested preview source is `aea6caf1c1e8afaf29b524c9ac9fafde6d9b2f17`. It bundles a 48,188,514-byte model with UINT8 embeddings, FLOAT16 MatMul weight storage and FLOAT computation. CPU/WASM parity passed on 64 fixed examples; the 128-token p50 of 150.1ms missed the 100ms target, and general accuracy of this variant is unmeasured. It was integrated into a development preview after optimization was deferred. Formal MVP/M5 acceptance remains incomplete.
+The latest tested preview source is `f2d6afdd5bd241a5bed30b77faef226702f09cd2`. It bundles a 48,188,514-byte model with UINT8 embeddings, FLOAT16 MatMul weight storage and FLOAT computation. CPU/WASM parity passed on 64 fixed examples; the 128-token p50 of 150.1ms missed the 100ms target, and general accuracy of this variant is unmeasured. It was integrated into a development preview after optimization was deferred. Formal MVP/M5 acceptance remains incomplete.
 
-The saved preview passed its build and seven E2E tests (four mock, three real-model). After the audit fix, unexpected traffic was zero and monitoring coverage, asset binding and cleanup passed. The final public commit and extracted ZIP require their own validation, recorded in the attached summary. The [preview validation](docs/preview-validation.md) preserves historical sources, hashes, failures and limits.
+The extracted public ZIP passed seven E2E tests (four mock, three real-model) and its traffic audit, including zero unexpected requests, monitoring coverage, asset binding and cleanup. Historical failures and source bindings remain in [preview validation](docs/preview-validation.md).
 
 The images below are historical local-fixture examples, not new captures of the latest preview.
 
@@ -22,7 +22,7 @@ The images below are historical local-fixture examples, not new captures of the 
 
 ## Install the preview
 
-Once published, download the extension ZIP from [GitHub Releases](https://github.com/ayutaz/kotoba-guard/releases). This is not a Chrome Web Store distribution.
+Download the extension ZIP from [GitHub Releases](https://github.com/ayutaz/kotoba-guard/releases). This is not a Chrome Web Store distribution.
 
 1. Extract the ZIP into a local folder.
 2. Open `chrome://extensions` and enable Developer mode.
@@ -136,4 +136,4 @@ Use Red -> Green -> Refactor, then run the relevant unit, integration, E2E, and 
 
 Project code is provided under the [MIT License](LICENSE). Copyright and licensing for the upstream model belong to SB Intuitions and the upstream model card. Dependency and third-party notices are collected in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-There is no public GitHub Release, Chrome Web Store listing, npm package, or Hugging Face publication yet. Publication requires a separate review and authorization.
+The [GitHub v0.1.0 preview](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0) is available. There is no Chrome Web Store listing, npm package or Hugging Face publication.

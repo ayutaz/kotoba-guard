@@ -2,7 +2,8 @@
 
 文書確認: 2026-11-28。最新previewの検証環境はWindows11 x64 / Node24.15.0 /
 Chromium159.0.8154.6 / ONNX Runtime Web1.31.1 / WASM1thread。
-source`aea6caf`でbuild・7E2Eが成功。監査は通信観測成功だがcontext cleanup失敗で全体不合格。
+公開source`f2d6afd`の展開ZIPで7E2E・通信監査が成功。両OS品質CIとLinux browser fixtureも成功。
+Linux実モデルと最低Chromeは別の未完了項目。[v0.1.0公開記録](validation-v0.1.0.md)を参照。
 [preview記録](preview-validation.md)に正確な範囲を記載する。
 
 Chrome MV3とruntime.getContextsを利用できるChrome116以降を設計上の下限とする。
@@ -17,4 +18,4 @@ Chrome MV3とruntime.getContextsを利用できるChrome116以降を設計上の
 
 一般editor fixtureではtextarea/input/contenteditable、合成composition、機密欄除外を確認した。
 物理IME、native許可UI、Gmail/ChatGPT/X/Slack/GitHub等実サービス、cross-origin iframe、
-closed Shadow DOM、Google Docsは受け入れ済みとしない。現在は停止中で追加互換性試験を行わない。
+closed Shadow DOM、Google Docsは受け入れ済みとしない。今回の初回preview公開範囲では追加互換性試験を行わない。

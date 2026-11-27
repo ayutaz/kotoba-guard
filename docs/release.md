@@ -1,7 +1,7 @@
 # 公開準備
 
-2026-11-28更新。GitHubプレビュー公開までの作業を再開した。最適化を延期し、
-preview配布と正式MVP/M5の受け入れを区別する。現在の優先順は[実行計画](next-steps.md)。
+2026-11-28更新。GitHub v0.1.0プレビュー公開まで完了した。[v0.1.0公開記録](validation-v0.1.0.md)を参照。最適化を延期し、
+preview配布と正式MVP/M5の受け入れを区別する。完了範囲と後続タスクは[実行計画](next-steps.md)。
 
 ## 公開自動化
 
@@ -22,8 +22,7 @@ uv run --locked python scripts/preview_release.py publish --release-dir <release
 その固定URL/SHAでworkflowをpublish=false実行し、後続の公開経路を確認する。
 rawのartifacts・trace・入力文章・ローカルパスを公開しない。
 
-監査終了処理は`e627333`で修正・実監査成功。最終公開ソースと展開ZIPに対するE2E/監査は
-別途必要で、既存の成功結果を付け替えない。Chrome Web Store/HF/npm公開は今回の対象外。
+監査終了処理は`e627333`で修正・実監査成功。最終公開ソースと展開ZIPでもE2E/監査が成功した。既存の成功結果を付け替えない。Chrome Web Store/HF/npm公開は今回の対象外。
 
 ## 再開前の保存済み成果物
 
@@ -59,7 +58,7 @@ node scripts/build.mjs --model-source artifacts/preview/local/bundle --out-dir a
 `npm run package`のCLIは旧`dist/extension`を対象としbuildしない。隔離previewのZIPは
 `scripts/package_extension.py`の`create_zip(root, output)`/`verify_zip`を用いる経路で明示的に作る。
 同じ検証済みdirectoryから2回包装し、SHA一致、SBOM、完全LICENSE、model manifest、source commitを記録する。
-新previewではまだこの段階に到達していない。存在しないZIPのサイズ/SHAを記載しない。
+v0.1.0はこの段階を完了済み。新しいversionでも実測したZIPのサイズ/SHAのみを記載する。
 
 ## 正式公開との境界
 

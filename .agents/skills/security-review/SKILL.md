@@ -5,16 +5,16 @@ description: Audit Kotoba Guard input privacy, messages, dependencies and packag
 
 ## Current boundary — 2026-11-28
 
-The owner resumed the minimal release plan through GitHub preview publication.
-Read [next steps](../../../docs/next-steps.md) and
-[current preview validation](../../../docs/preview-validation.md).
-Commit e627333 fixed auditor shutdown; a real-model audit of the saved preview
-passed coverage, source/assets binding, offline6, unexpected0 and all eight
-cleanup operations. Preserve the earlier failed reports.
-The public source and final extracted ZIP still require their own bound checks.
-Use the local preview CLI for the first release; later workflow runs verify a
-fixed sealed bundle. No model/performance experiments, Store/HF/npm publication,
-paid services or credential changes are included. Never overwrite frozen assets.
+The minimal release plan is complete. GitHub prerelease v0.1.0 is public,
+source f2d6afdd5bd241a5bed30b77faef226702f09cd2. Read
+[release validation](../../../docs/validation-v0.1.0.md) and
+[next steps](../../../docs/next-steps.md). Final extracted-ZIP7 E2E, real audit,
+Windows/Linux quality CI and downloaded11 asset hashes passed. The release
+workflow verification job passed; its publish job was intentionally skipped.
+Actual first publication used the local CLI. Formal M5 remains incomplete.
+This delivery is complete; do not begin optimization or Store/HF/npm work.
+Preserve private local main history and frozen evidence; public branch maps to
+origin/main and must use the GitHub public noreply identity.
 
 ## Procedures and historical lessons
 

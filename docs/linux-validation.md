@@ -1,5 +1,7 @@
 # Linux validation
 
+現在はGitHub v0.1.0プレビュー公開済み。[v0.1.0公開記録](validation-v0.1.0.md)を参照。以下の測定・停止記録は各記載日時点の範囲を示す。
+
 文書確認: 2026-11-28。以下は旧sourceのLinux検証履歴。最新aea6caf previewの
 Linux検証は未実施で、旧モデル/配布資産の成功を転用しない。[現在の検証](preview-validation.md)を参照。
 開発停止中の文書保守ではDockerやCIを実行しない。

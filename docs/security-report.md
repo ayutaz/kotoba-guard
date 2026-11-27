@@ -1,8 +1,12 @@
 # ローカルセキュリティ検証記録
 
-2026-11-28更新。監査source `e627333`で保存済みpreviewを再監査し、exit0/gate=trueとなった。
+2026-11-28、公開source `f2d6afdd5bd241a5bed30b77faef226702f09cd2`の最終展開ZIPの監査がexit0/gate=true。
+通信0・coverage・offline6回・資産照合・cleanup8項目成功。公開後の全添付物SHAも一致。
+[v0.1.0公開記録](validation-v0.1.0.md)を現在の参照先とする。
+
+以下は修正過程の記録。監査source `e627333`で保存済みpreviewを再監査し、exit0/gate=trueとなった。
 予期しない通信0、対象coverage/source/資産照合、offline6回、終了処理8項目とOSメモリ計測が成功した。
-最終公開ソースと展開ZIPの監査は別途必要。[現在の検証記録](preview-validation.md)を参照。
+最終公開ソースと展開ZIPの結果は冒頭の公開記録を参照。[現在の検証記録](preview-validation.md)を参照。
 
 以下は修正前の失敗記録で、対象sourceと結果を維持する。
 

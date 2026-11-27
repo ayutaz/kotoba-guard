@@ -1,12 +1,13 @@
 # CI運用とコスト境界
 
-文書照合: 2026-11-28。最新preview aea6cafの結果はローカルWindows検証であり、remote Actionsは未実行。
-今回Git remote未設定を確認し、認証・課金設定の再照会/変更はしていない。
+2026-11-28、公開source f2d6afdのWindows/Linux品質・browser fixture・依存監査CIが成功。
+実公開bundleのrelease workflow検証も成功し、publish jobは指定どおりskip。[v0.1.0公開記録](validation-v0.1.0.md)を参照。
+課金・認証設定は変更していない。
 既定workflowは通常のモデル生成/dist/チェック経路で、隔離previewモデルを自動で検証済みとはしない。
-開発停止中で、文書保守を理由にCIを起動しない。[現在の検証](preview-validation.md)。
+モデル変換workflowやLinux実モデル検証は今回実行していない。[現在の検証](preview-validation.md)。
 以下の外部料金/仕様は元の参照日時点の記録で、今回再調査していない。
 
-2026-11-27時点のGitHub Actions定義に対する運用方針。CIはローカル開発と同じ品質ゲートを実行するが、外部CIの実行、課金設定、認証設定、公開設定はこのリポジトリから変更しない。
+2026-11-27時点のGitHub Actions定義に対する運用方針。CIはローカルと同じ品質ゲートを実行する。実行は許可された公開範囲内とし、課金・認証設定を変更しない。
 
 ## デフォルト動作
 
@@ -43,7 +44,7 @@ GitHub公式仕様では、code scanningはpublic repository、またはGitHub C
 | `model-validation.yml`       | 手動入力のみ               | CPU変換・parity・合成回帰   |    60分 |
 | `security.yml` dependency    | push / pull request / 手動 | npm・Python監査・SBOM       |    30分 |
 | `security.yml` CodeQL        | 明示変数かつ利用資格あり   | CodeQL                      |    30分 |
-| `release.yml`                | 手動入力のみ               | reviewable package準備      |    90分 |
+| `release.yml`                | 手動入力のみ               | sealed bundle検証/任意公開  |  各15分 |
 
 成果物を有効にする場合でも、アップロード対象は各workflowに記載されたmanifest、監査JSON、チェック結果、SBOMなどの最小ファイルだけである。raw model、raw dataset、評価入力本文、詳細なブラウザtraceは対象に含めない。
 

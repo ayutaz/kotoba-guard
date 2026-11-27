@@ -1,7 +1,7 @@
 # ドキュメント案内
 
-2026-11-28更新。開発は停止中。最新検証sourceはaea6caf、build/E2E7件成功、
-通信0・証拠照合成功だが監査context終了失敗でZIP/SBOM未生成、未公開。
+2026-11-28更新。GitHub v0.1.0プレビュー公開済み。最終ソースf2d6afdの展開ZIP、
+実モデルE2E/監査、両OS品質CI、公開後のSHA照合が成功。[v0.1.0公開記録](validation-v0.1.0.md)を参照。
 [最新preview検証](preview-validation.md)と[開発状況](status.md)を現在の参照先とする。
 
 ## 現在の手順と判断

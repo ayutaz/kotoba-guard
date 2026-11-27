@@ -20,8 +20,9 @@ evaluation of this variant was run. Do not transfer historical QUInt8 metrics be
 
 The saved preview passed its build and seven E2E tests. Auditor source e627333
 subsequently fixed cleanup and passed the real-model audit with zero unexpected
-requests, verified coverage/assets and all eight cleanup operations. Final-source
-ZIP validation and GitHub preview publication are being prepared.
+requests, verified coverage/assets and all eight cleanup operations. The final-source
+extracted ZIP passed E2E/audit, and the GitHub preview is published. See the
+[release validation](validation-v0.1.0.md).
 See [preview validation](preview-validation.md) and [FP16-storage experiment](research/fp16-storage-candidate.md).
 
 ## Historical conversion and evaluation records

@@ -6,19 +6,24 @@ downloads, accounts, paid inference or automatic text rewriting.
 
 ## Current state and release scope
 
-The owner resumed the four-step minimal-release plan: fix audit cleanup,
-automate publication, verify the ZIP, and publish a GitHub preview. That scope
+The four-step minimal-release plan is complete: auditor fix, publication
+automation, extracted-ZIP validation and GitHub v0.1.0 preview publication. That scope
 includes local fixes/tests/commits and the intended ayutaz/kotoba-guard preview
 publication. Chrome Web Store/Hugging Face/npm, paid services and credential
 changes remain outside scope. Optimization stays deferred.
-Read docs/status.md, docs/preview-validation.md and docs/next-steps.md first.
+Read docs/status.md, docs/validation-v0.1.0.md and docs/next-steps.md first.
+The tested release source/tag is f2d6afdd5bd241a5bed30b77faef226702f09cd2 / v0.1.0.
+Final7 E2E/audit/Windows-Linux CI passed;11 downloaded assets matched.
+This delivery is complete; do not start optimization or new publication work.
+Working branch release/public-preview maps to origin/main; local main preserves
+private development history. Never merge/push that private history. Use the
+public GitHub noreply identity for every future public commit.
 
-Saved preview runtime source is aea6caf1c1e8afaf29b524c9ac9fafde6d9b2f17.
-Its78-asset build and seven E2E passed. Auditor source e627333 subsequently
-fixed debugger/session shutdown and passed real-model coverage/source/assets,
-offline6, unexpected0, OS memory samples and all eight cleanup operations.
-Preserve earlier cleanup failures. Final public source and extracted ZIP need
-their own bound checks; old dist/ZIP must not be relabeled as the preview.
+Release source f2d6afdd5bd241a5bed30b77faef226702f09cd2 passed the78-asset
+build, seven E2E and real offline audit with cleanup8/coverage/source/assets.
+ZIP62,507,705 bytes, SHA1eb9f114bf49efd29b2c1df3b46665460e61d3eb95ce92dcb147eb1d5e8ecda2.
+Preserve earlier audit failures and the distinct old dist/ZIP. The public tag
+continues to identify this tested source when later documentation changes.
 
 Owner prioritizes early delivery and defers optimization. The preview contains
 the numerically consistent embedding-UINT8/MatMul-FP16-storage model (FLOAT
@@ -28,8 +33,8 @@ Source2914a68 fixed64 CPU/WASM parity passed;128-token p50=150.1ms did not meet
 Accuracy, practical independent gold, physical IME/native permissions, services,
 current-platform/remote validation and fullM5 remain incomplete.
 
-The auditor cleanup fix is complete. Finish publication automation review, then
-final-source extracted-ZIP/E2E/audit and SHA/SBOM/package checks. Preserve the6de3a00 failures,
+The auditor fix, publication automation, final-source ZIP/E2E/audit and package
+checks are complete. Do not repeat them without a relevant new change. Preserve the6de3a00 failures,
 aea6caf results, frozen distribution and all historical source-bound evidence.
 Do not rerun a failed trial unchanged, extend deadlines without grounds,
 or substitute documentation/old evidence for actual acceptance.
@@ -46,7 +51,7 @@ for isolated build/E2E/package paths. Default build/harness/package commands
 can overwrite frozen dist or reports: never run them for status/docs checks.
 Restricted Windows caches belong under .cache/uv, .cache/npm and .cache/playwright.
 For ownership errors use per-command git -c safe.directory=<verified checkout>;
-never change global trust or machine settings. No remote is configured.
+never change global trust or machine settings. The public remote is ayutaz/kotoba-guard; preserve the verified release tag.
 
 ## Implementation and TDD
 

@@ -1,5 +1,7 @@
 # Python coverage gate
 
+現在はGitHub v0.1.0プレビュー公開済み。[v0.1.0公開記録](validation-v0.1.0.md)を参照。以下の測定・停止記録は各記載日時点の範囲を示す。
+
 Documentation checked 2026-11-28. These are historical source-bound coverage
 measurements. The latest aea6caf preview has only the scoped unit evidence listed
 in [preview validation](preview-validation.md), not a fresh full Python coverage

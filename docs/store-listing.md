@@ -1,6 +1,8 @@
 # Chrome Web Store 掲載準備 / Store Listing Draft
 
-文書照合: 2026-11-28。以下は申請前の文案で、申請/公開は未実施。開発停止中。
+現在はGitHub v0.1.0プレビュー公開済み。[v0.1.0公開記録](validation-v0.1.0.md)を参照。以下の測定・停止記録は各記載日時点の範囲を示す。
+
+文書照合: 2026-11-28。以下は申請前の文案で、申請/公開は未実施。初回previewの作業は完了。
 最新preview sourceはaea6caf、build/E2E7件成功だが監査cleanup失敗でZIP/SBOM未生成。
 48.19MBのFP16保存モデルはp50=150.1msで速度目標未達、一般精度は未評価。
 旧QUInt8の速度・精度や「世界初」「高精度」「100ms以下」を最新previewの掲載根拠にしない。

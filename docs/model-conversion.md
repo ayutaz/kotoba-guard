@@ -1,6 +1,8 @@
 # Model conversion
 
-Documentation checked 2026-11-28. Development is paused. The current preview uses
+現在はGitHub v0.1.0プレビュー公開済み。[v0.1.0公開記録](validation-v0.1.0.md)を参照。以下の測定・停止記録は各記載日時点の範囲を示す。
+
+Documentation checked 2026-11-28. The GitHub preview is published; additional experiments remain deferred. The current preview uses
 FP16 weight storage with FLOAT computation; the default pipeline and historical
 artifact tables below retain the old dynamic-QUInt8 conversion path.
 

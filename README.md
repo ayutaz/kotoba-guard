@@ -4,15 +4,15 @@
 
 開発者向けの既定buildは旧QUInt8モデル経路です。現在のpreviewを再現する場合は[隔離preview手順](docs/release.md#ローカルpreviewの作成)を使います。
 
-GitHubプレビューの公開準備を進めています。監査終了処理を修正し、commit `e627333`で既存previewの実モデル監査に成功しました。公開自動化の最終確認と配布ZIPの検証が残っています。最適化と機能追加は後回しです。[現在の状態](docs/status.md)を参照してください。
+[v0.1.0プレビュー](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0)を公開しました。モデルとWASMを同梱したZIPを展開して利用できます。[公開・検証記録](docs/validation-v0.1.0.md)に、検証ソース、SHA、実モデルE2E、通信監査、Windows/Linux CIの結果を記録しています。
 
 Kotoba Guard は、ブラウザ内で日本語の誤字脱字を検出する Chrome 拡張機能です。入力本文を外部サービスへ送らず、モデルと推論ランタイムを拡張機能に同梱しています。
 
-**現在はローカル開発版です。MVPの受け入れ条件は未達で、正式公開していません。** 実モデルによるオフラインの手動・自動チェック、一般編集欄、IMEイベント処理を検証しています。物理IME・ネイティブ権限UI・実サービスや現行runtimeの全環境での動作保証は未完了です。
+**現在はプレビュー版です。正式MVPの受け入れ条件は未達です。** オフラインの手動・自動チェックと一般編集欄を検証しています。物理IME・ネイティブ権限UI・実サービス・全環境での動作保証は未完了です。
 
-最新previewの検証ソースは`aea6caf1c1e8afaf29b524c9ac9fafde6d9b2f17`です。Embedding UINT8 / MatMul FP16保存・FLOAT演算の48,188,514-byteモデルを同梱しています。固定64例のCPU/WASM一致は成功しましたが、128-token p50=150.1msの100ms目標未達と、一般精度未評価は残っています。最適化延期の方針で開発previewへ統合し、正式MVP/M5の合格とはしていません。
+最新previewの検証ソースは`f2d6afdd5bd241a5bed30b77faef226702f09cd2`です。Embedding UINT8 / MatMul FP16保存・FLOAT演算の48,188,514-byteモデルを同梱しています。固定64例のCPU/WASM一致は成功しましたが、128-token p50=150.1msの100ms目標未達と、一般精度未評価は残っています。最適化延期の方針で開発previewへ統合し、正式MVP/M5の合格とはしていません。
 
-既存previewはbuildとmock4件＋実モデル3件のE2Eに成功しました。監査修正後は予期しない通信0・観測網羅性・資産照合・終了処理が成功しています。最終公開コミットと展開ZIPでの検証は別途実施し、添付の検証要約へ記録します。[preview検証](docs/preview-validation.md)に過去の対象・SHA・失敗・未検証範囲を保持しています。
+公開ZIPを展開し、mock4件＋実モデル3件のE2Eと通信監査に成功しました。予期しない通信0、観測網羅性、資産照合、終了処理を確認しました。過去の失敗・対象ソースは[preview検証](docs/preview-validation.md)に保持しています。
 
 以下の画像は過去のローカルfixtureで撮影した参考画像で、最新previewの新規キャプチャではありません。
 
@@ -22,7 +22,7 @@ Kotoba Guard は、ブラウザ内で日本語の誤字脱字を検出する Chr
 
 ## プレビューのインストール
 
-公開後は[GitHub Releases](https://github.com/ayutaz/kotoba-guard/releases)から拡張機能ZIPを取得します。Chrome Web Store配布版ではありません。
+[GitHub Releases](https://github.com/ayutaz/kotoba-guard/releases)から拡張機能ZIPを取得します。Chrome Web Store配布版ではありません。
 
 1. ZIPを任意のフォルダへ展開します。
 2. Chromeの `chrome://extensions` でデベロッパーモードを有効にします。
@@ -136,4 +136,4 @@ npm run package
 
 本プロジェクトのコードは [MIT License](LICENSE) で提供します。上流モデルの著作権・ライセンスは SB Intuitions と上流モデルカードに帰属します。依存関係と第三者資料の表示は [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) にまとめます。
 
-正式な GitHub Release、Chrome Web Store、npm、Hugging Face への公開はまだ行っていません。公開には別途レビューと許可が必要です。
+GitHubでは[v0.1.0プレビュー](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0)を配布しています。Chrome Web Store、npm、Hugging Faceへの公開は行っていません。

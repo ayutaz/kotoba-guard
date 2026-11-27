@@ -1,77 +1,45 @@
 # 残タスクと着手順
 
-更新日: 2026-11-28。初回はGitHubのprereleaseでZIPを配布する。Chrome Web Storeでの一般配布は後続とする。
-本計画1〜4の実行を再開している。公開は検証済み配布物に限定する。
-
-## 現在の状態
-
-- 監査終了処理の修正はcommit `e627333`まで完了。実モデル監査はexit0/gate=true、予期しない通信0、offline6回、終了処理8項目すべて成功。
-- 拡張機能は既存previewでbuildと7件のE2Eに成功。最終公開コミットと最終ZIPに対する検証はこれから行う。
-- `scripts/preview_release.py`、関連テスト、release workflowの実装は揃っている。未コミットで、レビューと最終品質確認が残る。
-- 新しい配布ZIP・SBOMの最終確認とGitHub公開は未実施。
-
-監査の詳細と過去の失敗は[preview検証記録](preview-validation.md)に保持する。
-過去の成功結果を新しいコミットの検証結果に付け替えない。
+2026-11-28、最短リリース計画1〜4を完了。[v0.1.0プレビュー](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0)を公開した。
+実行結果と根拠は[公開検証記録](validation-v0.1.0.md)。今回の作業はここで区切る。
 
 ## 実行計画
 
-| 順序 | 作業                       | 完了条件                                                                                                                                              |
-| ---- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | 公開自動化を仕上げる       | CLI/workflowをレビューし、関連テスト・Lintを通す。公開指定なしでは外部書き込みせず、証拠欠落・hash/source不一致・既存versionを拒否する                |
-| 2    | 公開ソースとZIPを固定する  | 公開ファイル・履歴の個人情報を確認し、元のローカル履歴を保護する。最終コミットからZIPを2回作成してSHA一致、SBOM・ライセンス・モデルmanifestを確認する |
-| 3    | 配布ZIPを最終検証する      | ZIPを展開し、実モデルE2Eと通信監査を実行する。読み込み、検出、offline、機密欄除外、サイトON/OFFを確認し、結果を同じソースと資産に紐付ける             |
-| 4    | GitHubプレビューを公開する | README・導入手順・既知の制約を揃え、同じ検証済みZIPを公開する。公開タグのコミットとダウンロードしたZIPのSHAを照合する                                 |
-
-自動化の新規実装を広げず、上記の完了に必要な修正だけを行う。
-リモートCIは実際の結果を確認し、ローカル成功と区別して記録する。
+| 順序             | 結果                                                            |
+| ---------------- | --------------------------------------------------------------- |
+| 1 公開自動化     | CLI/workflowを実装・レビュー・回帰検証済み                      |
+| 2 ソース/ZIP固定 | 公開履歴のprivacy確認、2回包装一致、SHA/SBOM/ライセンス確認済み |
+| 3 展開ZIP検証    | E2E7件と実モデル通信監査が成功                                  |
+| 4 GitHub公開     | 同一ZIPのprerelease公開、実タグ/公開11添付物のSHA照合済み       |
 
 ## 公開自動化の最小実装計画
 
-初回はローカルで検証した配布物をCLIから公開する。存在しないrelease assetを初回の前提にしない。
-以降のworkflowは、同じリポジトリに置いた固定SHAのsealed bundleを取得・検証して公開する。
-現在のworkflowはモデルの再変換・再buildを行わず、公開指定の既定値はfalse。
+初回の実公開はローカルCLIで実行した。sealed bundleも同じReleaseに添付した。
+GitHub workflowは実際の公開bundleで検証jobが成功し、publish=falseの公開jobはskipした。
+以降も公開前に固定source/version/SHA/証拠を照合し、明示指定時だけ公開する。
+公開時の再変換・再build・再包装、既存tag/release/assetの上書きはしない。
 
-```text
-固定したソース → build・ZIP作成 → 展開ZIPでE2E/通信監査
-  → ZIP・SHA-256・SBOM・model manifest・公開用検証要約を固定
-  → source/version/hashを再照合
-  → 明示的な公開実行 → GitHub prerelease
-  → 公開タグ・添付物・ダウンロードZIPを確認
-```
+## 次の段階
 
-prepareはread権限、公開jobだけcontents:writeとする。
-公開段階では再包装せず、既存release/tag/assetを上書きしない。
-公開添付物はallowlistに限定し、rawログ・ブラウザtrace・ローカルパス・入力文章を含めない。
-dry-run成功を、リモートworkflow成功や公開成功として扱わない。
-
-## 再検証と停止の基準
-
-最終ソースと配布資産を固定した後、必要な品質チェックと実モデルでの最終確認を行う。
-モデル変換・精度評価・速度実験は繰り返さない。
-失敗した場合は原因に対応する修正と回帰テストを追加し、影響範囲だけを再確認する。
-無変更の再試行、閾値の引き下げ、失敗の無視によって公開しない。
-
-検証済みZIPのGitHub公開とダウンロード照合が終わった時点で、初回previewの作業を区切る。
-これは正式MVP/M5の全条件完了を意味しない。
+新しい指示後に、Chrome Web Store初回申請の説明・画像・ポリシー資料を実物に照合する。
+申請は公開操作なので、その許可範囲を確認してから行う。審査期間は開発側で短縮保証しない。
+物理IME/native権限UI/実サービスの実用確認、独立goldと精度評価は正式MVPの未完了事項。
+最適化・WebGPU・修正候補・辞書・追加サイト・新モデルは初回提供後の別作業とする。
 
 ## 現在の再開手順
 
-1. `git status`、AGENTS、[status](status.md)、[preview検証](preview-validation.md)を確認する。
-2. 未コミットの公開自動化と関連テストをレビューする。監査終了処理の修正は完了済みなので再調査から始めない。
-3. 上の計画1〜4を順番に進め、結果・対象コミット・生成物を記録する。
+`git status`、AGENTS、[status](status.md)、[公開検証記録](validation-v0.1.0.md)を読む。
+作業branchは`release/public-preview`、公開先branchは`origin/main`。元のローカルmainは旧開発履歴。
+公開側へ旧mainの履歴をmerge/pushしない。公開用GitHub identityを使い、force pushしない。
 
 ## 生成物を保護する
 
-保存済みpreviewは`artifacts/preview/aea6caf1c1e8afaf29b524c9ac9fafde6d9b2f17/extension/`。
-監査修正commit `e627333`の成功は、この既存buildを再監査した結果である。
-最終配布物は新しい出力先へ作成し、このbuild、旧`dist/extension`、旧ZIP、失敗ログを上書きしない。
-既定のbuild/harness/packageは旧出力を更新し得るため、[開発手順](development.md)の明示的な同梱元・出力先を使う。
+リリースソースは`f2d6afdd5bd241a5bed30b77faef226702f09cd2`。`artifacts/preview/<source>/`と公開後の取得物を保持する。
+旧aea6cafのbuild、旧dist/ZIP、失敗ログ、閉じた実験を上書き・再ラベルしない。
+新しい生成物は[開発手順](development.md)の明示的な出力先を使う。
 
-## 今回の最短範囲に加えない作業
+## 再検証と停止の基準
 
-性能・メモリ最適化、新モデル、confidence探索、WebGPU、修正候補、辞書、追加サイト対応は後工程。
-Store初回申請・Store更新自動化、Hugging Face/npm公開、課金・認証変更も今回の範囲に含めない。
-
-精度目標未達、新previewの一般精度未評価、物理IME/native権限、実サービス、他環境と長期資源の
-未検証は公開時の制約として明記する。高精度・正式MVP完成・Store審査済みとは表示しない。
-詳細な正式受け入れ条件は[checklist](mvp-checklist.md)に残す。
+今回の公開とダウンロード確認は完了。追加の変換・精度・速度・資源実験を始めない。
+修正時は関連回帰と影響範囲を確認し、失敗の無視、閾値引き下げ、無変更retryで合格扱いにしない。
+正式MVP/M5の未達をpreview公開で完了扱いにしない。
