@@ -1,138 +1,91 @@
 # Kotoba Guard
 
-[English](README.en.md) · [プレビューをダウンロード](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0) · [導入手順](#プレビューのインストール) · [感想・不具合](https://github.com/ayutaz/kotoba-guard/issues)
+**日本語の誤字脱字を、あなたのPCの中だけでチェックするChrome拡張機能です。**
 
-**完全ローカルで日本語の誤字脱字をチェックする、オープンソースのChrome拡張機能です。**
+文章を入力すると、誤りの可能性がある箇所に印を付けます。入力した文章を外部に送らず、インストール後はオフラインでも使えます。無料・オープンソースで、アカウント登録やAPIキーは不要です。
 
-- 入力文章の外部送信なし。アカウント・APIキー・テレメトリー不要。
-- AIモデルと推論ランタイムを同梱し、インストール後はオフラインでも動作。
-- 手動チェックと、許可したサイトでの入力確定後の自動チェック。
-- 誤りの可能性がある箇所を表示。本文の自動書き換えは行いません。
+[プレビューをダウンロード](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0) · [使い方](#使い方) · [English](README.en.md)
 
-**v0.1.0はプレビュー版です。** Chrome Web Storeには未公開です。誤検出・見逃しがあり、物理IMEや実サービス固有の挙動は検証が残っています。試した感想や不具合は[Issues](https://github.com/ayutaz/kotoba-guard/issues)へお寄せください。投稿前に文章や画像から個人情報・機密情報を除いてください。
+![Kotoba Guardが文章中の誤字候補を表示している画面](docs/images/preview-v0.1.0.png)
 
-![Kotoba Guard v0.1.0による日本語の誤字候補の表示](docs/images/preview-v0.1.0.png)
+_v0.1.0を使ったローカルのテスト画面です。本文を書き換えずに、気になる箇所を表示します。_
 
-v0.1.0の実モデルを使った自作のローカルテスト画面です。[検証結果・SHA・既知の制約](docs/validation-v0.1.0.md) · [プライバシー](PRIVACY.md) · [文書索引](docs/index.md)
+現在は **プレビュー版（v0.1.0）** をGitHubで配布しています。Chrome Web Storeにはまだ公開していません。誤検出や見逃しがあるため、チェック結果は参考としてお使いください。
+
+## できること
+
+- **手動でチェック**：入力欄の文章を、好きなタイミングでチェックできます。
+- **入力後に自動チェック**：許可したサイトでは、文字の入力・変換が確定してからチェックします。
+- **気になる箇所を確認**：ハイライトと一覧から、誤りの種類や信頼度を確認できます。
+- **サイトごとに切り替え**：自動チェックを使うサイトを自分で選べます。
+
+AIモデルは拡張機能に同梱しています。CPUで動作するため、GPUを搭載していないPCでも利用できます。修正候補の提示や自動修正には、まだ対応していません。
 
 ## プレビューのインストール
 
-[GitHub Releases](https://github.com/ayutaz/kotoba-guard/releases)から拡張機能ZIPを取得します。Chrome Web Store配布版ではありません。
+1. [v0.1.0の配布ページ](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0)から **`kotoba-guard-0.1.0.zip`** をダウンロードします。
+2. ZIPを任意のフォルダに展開します。拡張機能の利用中は、このフォルダを残してください。
+3. Chromeで `chrome://extensions` を開き、右上の「デベロッパーモード」をオンにします。
+4. 「パッケージ化されていない拡張機能を読み込む」を押し、展開したフォルダを選びます。
 
-1. ZIPを任意のフォルダへ展開します。
-2. Chromeの `chrome://extensions` でデベロッパーモードを有効にします。
-3. 「パッケージ化されていない拡張機能を読み込む」で展開先を選びます。
-4. 文章欄にフォーカスし、拡張機能の「今すぐチェック」を選びます。
-5. 自動チェックを使うサイトだけ「このサイトで有効にする」から許可します。
+AIモデルを含むため、ZIPは約63MBあります。モデルを別途ダウンロードしたり、開発環境を用意したりする必要はありません。
 
-更新時は新しいZIPを展開し、拡張機能の読み込み先を更新します。誤検出・見逃しがあるため、結果は利用者が確認してください。
+## 使い方
 
-## 現在の構成
+1. チェックしたい入力欄をクリックします。
+2. ChromeのツールバーからKotoba Guardを開き、**「今すぐチェック」**を押します。
+3. 誤りの可能性がある箇所に印が付きます。**「検出 N件」**を押すと詳細を確認できます。
 
-```text
-許可したエディタ
-  → Content Script / Editor Adapter
-  → Service Worker
-  → Offscreen Document / Worker
-  → browser inference SDK
-  → ONNX Runtime Web (WASM)
-  → ModernBERT 日本語誤字検出モデル
-```
+入力のたびに自動でチェックしたい場合は、拡張機能の **「このサイトで有効にする」** を押し、Chromeのアクセス許可を確認してください。日本語の変換中はチェックせず、確定後に少し待ってから処理します。
 
-SDK は Chrome API から分離し、モデルのラベル定義は設定ファイルから読み込みます。検出位置は JavaScript の UTF-16 半開区間で扱い、入力欄の値や編集 DOM を書き換えずに結果を表示します。実装の詳細は [docs/architecture.md](docs/architecture.md)、文書全体の案内は [docs/index.md](docs/index.md) を参照してください。
+自動チェックはサイトごとに解除できます。すべてのチェックを止める場合は、拡張機能の有効スイッチをオフにしてください。
 
-## 対象機能と検証範囲
+## 対応範囲と、まだできないこと
 
-一般的な `textarea`、テキスト用 `input`、`contenteditable`、IME の確定後処理、サイト単位の明示的な許可、機密入力欄の除外、WASM 推論、オフライン動作を実装しています。composition イベントは試験済みですが、物理 IME と Chrome のネイティブ許可 UI の受け入れは残っています。通常 UI の WebGPU、高精度モード、修正候補は未実装、Gmail・ChatGPT・X などの実サービスは未検証です。一般エディタ用の fixture が実サービスでの動作を証明するものではありません。
+一般的なテキスト入力欄、複数行の入力欄、編集可能なWebページ上の文章を対象にしています。ローカルのテストページで、実モデルによる検出とオフライン動作を確認しています。
 
-実サービスへのログインを CI に要求せず、Playwright のローカル fixture と実モデル検証を分けます。WASM の成功は WebGPU の動作を意味しません。ブラウザ互換性の境界は [docs/browser-compatibility.md](docs/browser-compatibility.md)、競合・プラットフォーム調査は [docs/research/competitors.md](docs/research/competitors.md) と [docs/research/browser-platform.md](docs/research/browser-platform.md) にまとめています。
+- Gmail・ChatGPT・X・Google Docsなど、**個別のサービスでの動作は未検証**です。
+- 日本語変換のイベント処理はテスト済みですが、実際のIMEを使った操作の確認は残っています。
+- 対象ブラウザはChromeです。ほかのブラウザやモバイルでの動作は確認していません。
+- 現在の配布モデルの一般的な文章に対する精度評価は未完了です。誤りをすべて検出できるわけではなく、正しい表現を指摘することもあります。
 
-## 開発環境
+検証済みの項目と残っている課題は[プレビューの検証結果](docs/validation-v0.1.0.md)に、速度などの実測値は[ベンチマーク](docs/benchmarks.md)にまとめています。
 
-- Windows では Node.js 24 LTS、Python 3.12、uv を使用します。
-- Python の依存関係は `pyproject.toml` と `uv.lock` で管理し、`pip install` やグローバル Python は使用しません。
-- Node.js の依存関係は `package-lock.json` で固定します。
-- ソース`0dc814c`の隔離Linux Dockerでは、Python297件、TS234件、実モデルE2E5件、変換比較、ビルド・ZIPを含む全10ゲートが成功しました。同じソースのWindows全10ゲート・E2E9件も成功。リモートGitHub Actionsとは別のローカル検証です。
+## プライバシー
+
+文章のチェックはPC内で完結します。入力文章を外部に送信したり、ログや永続ストレージに保存したりしません。テレメトリーもありません。自動チェックのためのサイトへのアクセスは、利用者が許可した場合にのみ有効になります。
+
+パスワード・クレジットカード・認証コードなど、属性から識別できる機密入力欄は対象から除外します。ただし、サイト側で適切な属性が付いていない欄まで完全に識別することはできません。
+
+詳しくは[プライバシーポリシー](PRIVACY.md)と[セキュリティ方針](SECURITY.md)をご覧ください。
+
+## 感想・不具合の報告
+
+試した感想や、うまく動かなかった場面は[GitHub Issues](https://github.com/ayutaz/kotoba-guard/issues)へお寄せください。使ったサイトや入力欄の種類、再現手順があると調査に役立ちます。文章やスクリーンショットを投稿する際は、個人情報・機密情報を除いてください。
+
+## 開発に参加する
+
+開発にはNode.js 24 LTS、Python 3.12、uvを使用します。依存関係の準備とコードの基本チェックは次のコマンドで行えます。
 
 ```powershell
 uv sync --locked
 npm ci
-uv run --locked python scripts/harness/check_environment.py
 npm run check
 npm test
 ```
 
-## ローカルで unpacked 拡張機能を作る
+モデルの取得・変換と拡張機能のビルドには、別の手順が必要です。目的に応じて以下を参照してください。
 
-開発者向けの既定buildは旧QUInt8モデル経路です。現在のpreviewを再現する場合は[隔離preview手順](docs/release.md#ローカルpreviewの作成)を使います。
-
-変換済みモデルは通常の Git 履歴に含めません。次のコマンドで、固定した Hugging Face リビジョンを開発用ディレクトリへ取得し、参照推論、ONNX 変換、INT8/FP16 変換、manifest 作成を順に実行します。`download` は開発者が明示的に実行する取得処理であり、利用者の拡張機能が実行時に外部からモデルやコードを取得する設計ではありません。
-
-```powershell
-uv sync --locked
-npm ci
-uv run --locked python scripts/model_pipeline.py download
-uv run --locked python scripts/model_pipeline.py reference --text "明日の予定については、来週移行にご連絡します。"
-uv run --locked python scripts/model_pipeline.py export
-uv run --locked python scripts/model_pipeline.py convert
-uv run --locked python scripts/model_pipeline.py manifest
-npm run build
-```
-
-モデルを含む配布物の検証には、モデル生成後に `npm run package` を実行します。ブラウザの fixture を使う場合は Chromium を一度導入してから `npm run test:e2e` を実行します。
-
-```powershell
-npx playwright install chromium
-npm run test:e2e
-npm run package
-```
-
-`manifest` コマンドは上流のconfig、Tokenizer、LICENSE、READMEも変換先へコピーし、資産のSHAを記録します。buildは配布用モデルのデバッグ情報を除去したコピーを作成します。
-
-生成された `dist/extension` を Chrome の `chrome://extensions` で開き、デベロッパーモードを有効にして「パッケージ化されていない拡張機能を読み込む」から選択します。モデル生成前のビルドは開発用の空モデルビルドであり、配布検証や実モデル推論の成功を意味しません。
-
-文章欄にフォーカスを置き、拡張機能のpopupから「今すぐチェック」を選ぶと、その文章を一度だけ検査します。継続して使うサイトでは「このサイトで有効にする」を選び、Chromeのアクセス許可を確認します。変換中は検査せず、確定後400msの待機を経て検査します。下線と説明は誤りの可能性を示し、本文を自動修正しません。「検出 N件」ボタンから詳細を開けます。本文・編集DOM・選択範囲の保持とfixtureでのUndo/Redoは試験済みですが、物理IMEを含む完全な操作検証は残っています。自動チェックはサイトボタン、全体の停止は有効スイッチで切り替えます。修正候補・辞書・専用設定画面は未実装です。
-
-## モデル
-
-最新previewの検証ソースは`f2d6afdd5bd241a5bed30b77faef226702f09cd2`です。Embedding UINT8 / MatMul FP16保存・FLOAT演算の48,188,514-byteモデルを同梱しています。固定64例のCPU/WASM一致は成功しましたが、128-token p50=150.1msの100ms目標未達と、一般精度未評価は残っています。最適化延期の方針で開発previewへ統合し、正式MVP/M5の合格とはしていません。
-
-上流モデルには SB Intuitions の [`ja-typo-detector-modernbert-ja-base-30m`](https://huggingface.co/sbintuitions/ja-typo-detector-modernbert-ja-base-30m) を使用します。
-
-- 固定リビジョン: `8d640720bddeb64c89dc1fa7780c3ea29fa523e8`
-- タスク: token classification
-- ラベル: 上流 `config.json` の `id2label` / `label2id` を使用
-- ライセンス: 上流モデルカードで確認した MIT
-
-このリポジトリはモデルを学習したものではなく、変換・ブラウザ実装・検証を提供します。検出モデルの出力から修正文や候補を生成したとは表示しません。変換手順、ファイルの SHA-256、ランタイム情報はモデル生成後の manifest に保存し、[models/README.md](models/README.md) と [docs/development.md](docs/development.md) から参照できるようにします。
-
-## プライバシーと権限
-
-実装では次の境界を設けています。
-
-- 入力本文、推論結果、デバッグログを外部へ送信しません。
-- テレメトリー、アカウント、API キー、入力本文の永続保存を要求しません。
-- モデル、Tokenizer、JavaScript、WASM は拡張機能に同梱します。
-- パスワード、決済情報、ワンタイムコード、hidden/file 入力は検出対象から除外します。
-- 全サイトへの常時アクセスを既定で要求せず、ユーザーが許可したサイトだけを対象にします。
-- CSP とメッセージ検証を使用し、入力本文を HTML として挿入しません。
-
-拡張機能の権限と脅威モデルは [PRIVACY.md](PRIVACY.md)、[SECURITY.md](SECURITY.md)、[docs/security-design.md](docs/security-design.md)、[docs/threat-model.md](docs/threat-model.md) に記載します。ローカルfixtureで初回オフライン推論と監視対象通信0件を確認しています。監査修正後、対象とした拡張contextの観測網羅性と終了処理の成功を確認しました。browser UI・起動前bootstrap・未検証経路まで含む安全保証ではありません。監視・依存監査の範囲は [検証記録](docs/security-report.md) を参照してください。
-
-## ベンチマークと制約
-
-現在のFP16保存モデルは48,188,514 bytes。source`2914a68`のWindows11 / Chromium159 / WASM1thread、128 tokens、3 warmup・20 samplesでp50=150.1ms・p95=200.5msでした。初期化・UIを除く直接ORT推論時間で、100ms p50目標は未達です。このモデルを同じSHAでpreviewに同梱しました。一般コーパス精度と長期メモリの新たな測定は行っていません。
-
-旧QUInt8モデルの37,789,676 bytes・p50=90.6ms/p95=108.6msは別モデルの過去測定です。JWTD公式test採用10,872例では参照P74.57%/R63.32%・正常文誤検出8.63%、旧QUInt8はP74.15%/R62.07%・8.44%で、精度目標未達です。これらを最新previewの精度として転記しません。[ベンチマーク](docs/benchmarks.md)に各モデル・条件・測定範囲を記載しています。
-
-既知の制約には、通常UIのWebGPU未対応、Edge・Firefox・モバイル・cross-origin iframe・closed Shadow DOM・Google Docs の未検証、実サービスのサイト固有挙動、モデル変換に必要な CPU/RAM があります。WebGPUは隔離したFP16実験でのみ検証しています。
-
-## コントリビューション
-
-変更は Red → Green → Refactor の順に進め、関連する unit/integration/E2E テストとセキュリティ検証を実行してください。モデルや生成物を通常の Git 履歴へ追加せず、実測値と未検証項目を区別してドキュメントを更新します。詳細は [AGENTS.md](AGENTS.md)、[CONTRIBUTING.md](CONTRIBUTING.md)、[docs/roadmap.md](docs/roadmap.md) を参照してください。
+- [開発環境とテスト](docs/development.md) / [コントリビューションガイド](CONTRIBUTING.md)
+- [構成と設計](docs/architecture.md)
+- [モデル変換手順](docs/model-conversion.md) / [モデルカード](docs/model-card.md)
+- [配布版を再現する手順](docs/release.md#ローカルpreviewの作成)
+- [ドキュメント一覧](docs/index.md)
 
 ## ライセンスとクレジット
 
-本プロジェクトのコードは [MIT License](LICENSE) で提供します。上流モデルの著作権・ライセンスは SB Intuitions と上流モデルカードに帰属します。依存関係と第三者資料の表示は [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) にまとめます。
+コードは[MIT License](LICENSE)で公開しています。
 
-GitHubでは[v0.1.0プレビュー](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0)を配布しています。Chrome Web Store、npm、Hugging Faceへの公開は行っていません。
+誤字脱字の検出には、SB Intuitionsが開発した日本語モデル[`ja-typo-detector-modernbert-ja-base-30m`](https://huggingface.co/sbintuitions/ja-typo-detector-modernbert-ja-base-30m)（MIT）を使用しています。Kotoba Guardは、このモデルの変換とブラウザでの実行機能を提供するプロジェクトです。
+
+依存ライブラリなどのライセンスは[第三者の権利表示](THIRD_PARTY_NOTICES.md)に記載しています。
