@@ -1,24 +1,19 @@
 # Kotoba Guard
 
-[English](README.en.md) · [文書索引](docs/index.md)
+[English](README.en.md) · [プレビューをダウンロード](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0) · [導入手順](#プレビューのインストール) · [感想・不具合](https://github.com/ayutaz/kotoba-guard/issues)
 
-開発者向けの既定buildは旧QUInt8モデル経路です。現在のpreviewを再現する場合は[隔離preview手順](docs/release.md#ローカルpreviewの作成)を使います。
+**完全ローカルで日本語の誤字脱字をチェックする、オープンソースのChrome拡張機能です。**
 
-[v0.1.0プレビュー](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0)を公開しました。モデルとWASMを同梱したZIPを展開して利用できます。[公開・検証記録](docs/validation-v0.1.0.md)に、検証ソース、SHA、実モデルE2E、通信監査、Windows/Linux CIの結果を記録しています。
+- 入力文章の外部送信なし。アカウント・APIキー・テレメトリー不要。
+- AIモデルと推論ランタイムを同梱し、インストール後はオフラインでも動作。
+- 手動チェックと、許可したサイトでの入力確定後の自動チェック。
+- 誤りの可能性がある箇所を表示。本文の自動書き換えは行いません。
 
-Kotoba Guard は、ブラウザ内で日本語の誤字脱字を検出する Chrome 拡張機能です。入力本文を外部サービスへ送らず、モデルと推論ランタイムを拡張機能に同梱しています。
+**v0.1.0はプレビュー版です。** Chrome Web Storeには未公開です。誤検出・見逃しがあり、物理IMEや実サービス固有の挙動は検証が残っています。試した感想や不具合は[Issues](https://github.com/ayutaz/kotoba-guard/issues)へお寄せください。投稿前に文章や画像から個人情報・機密情報を除いてください。
 
-**現在はプレビュー版です。正式MVPの受け入れ条件は未達です。** オフラインの手動・自動チェックと一般編集欄を検証しています。物理IME・ネイティブ権限UI・実サービス・全環境での動作保証は未完了です。
+![Kotoba Guard v0.1.0による日本語の誤字候補の表示](docs/images/preview-v0.1.0.png)
 
-最新previewの検証ソースは`f2d6afdd5bd241a5bed30b77faef226702f09cd2`です。Embedding UINT8 / MatMul FP16保存・FLOAT演算の48,188,514-byteモデルを同梱しています。固定64例のCPU/WASM一致は成功しましたが、128-token p50=150.1msの100ms目標未達と、一般精度未評価は残っています。最適化延期の方針で開発previewへ統合し、正式MVP/M5の合格とはしていません。
-
-公開ZIPを展開し、mock4件＋実モデル3件のE2Eと通信監査に成功しました。予期しない通信0、観測網羅性、資産照合、終了処理を確認しました。過去の失敗・対象ソースは[preview検証](docs/preview-validation.md)に保持しています。
-
-以下の画像は過去のローカルfixtureで撮影した参考画像で、最新previewの新規キャプチャではありません。
-
-![実モデルの検出表示。自作ローカルfixtureで撮影](docs/images/editor.png)
-
-![ポップアップUI。モデルの初期化前](docs/images/popup.png)
+v0.1.0の実モデルを使った自作のローカルテスト画面です。[検証結果・SHA・既知の制約](docs/validation-v0.1.0.md) · [プライバシー](PRIVACY.md) · [文書索引](docs/index.md)
 
 ## プレビューのインストール
 
@@ -69,6 +64,8 @@ npm test
 
 ## ローカルで unpacked 拡張機能を作る
 
+開発者向けの既定buildは旧QUInt8モデル経路です。現在のpreviewを再現する場合は[隔離preview手順](docs/release.md#ローカルpreviewの作成)を使います。
+
 変換済みモデルは通常の Git 履歴に含めません。次のコマンドで、固定した Hugging Face リビジョンを開発用ディレクトリへ取得し、参照推論、ONNX 変換、INT8/FP16 変換、manifest 作成を順に実行します。`download` は開発者が明示的に実行する取得処理であり、利用者の拡張機能が実行時に外部からモデルやコードを取得する設計ではありません。
 
 ```powershell
@@ -97,6 +94,8 @@ npm run package
 文章欄にフォーカスを置き、拡張機能のpopupから「今すぐチェック」を選ぶと、その文章を一度だけ検査します。継続して使うサイトでは「このサイトで有効にする」を選び、Chromeのアクセス許可を確認します。変換中は検査せず、確定後400msの待機を経て検査します。下線と説明は誤りの可能性を示し、本文を自動修正しません。「検出 N件」ボタンから詳細を開けます。本文・編集DOM・選択範囲の保持とfixtureでのUndo/Redoは試験済みですが、物理IMEを含む完全な操作検証は残っています。自動チェックはサイトボタン、全体の停止は有効スイッチで切り替えます。修正候補・辞書・専用設定画面は未実装です。
 
 ## モデル
+
+最新previewの検証ソースは`f2d6afdd5bd241a5bed30b77faef226702f09cd2`です。Embedding UINT8 / MatMul FP16保存・FLOAT演算の48,188,514-byteモデルを同梱しています。固定64例のCPU/WASM一致は成功しましたが、128-token p50=150.1msの100ms目標未達と、一般精度未評価は残っています。最適化延期の方針で開発previewへ統合し、正式MVP/M5の合格とはしていません。
 
 上流モデルには SB Intuitions の [`ja-typo-detector-modernbert-ja-base-30m`](https://huggingface.co/sbintuitions/ja-typo-detector-modernbert-ja-base-30m) を使用します。
 

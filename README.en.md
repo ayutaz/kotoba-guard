@@ -1,24 +1,19 @@
 # Kotoba Guard
 
-[日本語](README.md) · [Documentation index](docs/index.md)
+[日本語](README.md) · [Download the preview](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0) · [Installation](#install-the-preview) · [Feedback and bugs](https://github.com/ayutaz/kotoba-guard/issues)
 
-The default developer build uses the older QUInt8 model path. Use the [isolated preview procedure](docs/release.md#ローカルpreviewの作成) for the current preview.
+**An open-source Chrome extension that checks Japanese text for possible typos entirely on your device.**
 
-[v0.1.0 preview](https://github.com/ayutaz/kotoba-guard/releases/tag/v0.1.0) is available as an unpacked extension ZIP with the model and WASM bundled. The [release validation record](docs/validation-v0.1.0.md) identifies the tested source, hashes, real-model E2E, traffic audit and Windows/Linux CI results.
+- No text uploads, accounts, API keys or telemetry.
+- AI model and inference runtime bundled for offline use after installation.
+- Manual checks and automatic checks after input is committed on sites you allow.
+- Highlights possible errors without automatically rewriting your text.
 
-Kotoba Guard is a Chrome extension for detecting Japanese typos in the browser. It bundles the model and inference runtime with the extension and processes input locally.
+**v0.1.0 is a preview.** It is not on the Chrome Web Store. False positives and missed errors are possible; physical IME and service-specific behavior still need validation. Share feedback or bugs through [Issues](https://github.com/ayutaz/kotoba-guard/issues), after removing personal or confidential information from text and screenshots.
 
-**This is a preview. Formal MVP acceptance remains incomplete.** Offline manual/automatic checks and generic editors are tested. Physical IME, native permission UI, real services and all-platform validation remain incomplete.
+![Japanese typo detection with Kotoba Guard v0.1.0](docs/images/preview-v0.1.0.png)
 
-The latest tested preview source is `f2d6afdd5bd241a5bed30b77faef226702f09cd2`. It bundles a 48,188,514-byte model with UINT8 embeddings, FLOAT16 MatMul weight storage and FLOAT computation. CPU/WASM parity passed on 64 fixed examples; the 128-token p50 of 150.1ms missed the 100ms target, and general accuracy of this variant is unmeasured. It was integrated into a development preview after optimization was deferred. Formal MVP/M5 acceptance remains incomplete.
-
-The extracted public ZIP passed seven E2E tests (four mock, three real-model) and its traffic audit, including zero unexpected requests, monitoring coverage, asset binding and cleanup. Historical failures and source bindings remain in [preview validation](docs/preview-validation.md).
-
-The images below are historical local-fixture examples, not new captures of the latest preview.
-
-![Real-model detection in a self-authored local fixture](docs/images/editor.png)
-
-![Popup UI before model initialization](docs/images/popup.png)
+A self-authored local test page using the real v0.1.0 model. [Validation, checksums and limitations](docs/validation-v0.1.0.md) · [Privacy](PRIVACY.md) · [Documentation](docs/index.md)
 
 ## Install the preview
 
@@ -69,6 +64,8 @@ npm test
 
 ## Build and load the unpacked extension
 
+The default developer build uses the older QUInt8 model path. Use the [isolated preview procedure](docs/release.md#ローカルpreviewの作成) for the current preview.
+
 Converted model artifacts are excluded from normal Git history. The following commands download the pinned Hugging Face revision into the development workspace, run reference inference, export ONNX, create INT8/FP16 variants, and write the manifest. The download is an explicit developer build step; the installed extension does not fetch models or code at runtime.
 
 ```powershell
@@ -97,6 +94,8 @@ Open `dist/extension` from `chrome://extensions` with Developer mode enabled, us
 Focus an editor and choose the popup's manual-check button for a single check. For automatic checks, enable the current site and confirm Chrome's access request. Detection waits 400ms after composition commits. Marks indicate possible errors without automatic corrections; the detection-count button opens the details. Editor value, editable DOM, selection preservation, and fixture Undo/Redo have been tested, while complete interaction testing including physical IME remains open. The site button disables that site; the global switch stops all checks. Suggestions, dictionaries, and a dedicated settings page are not implemented.
 
 ## Model
+
+The latest tested preview source is `f2d6afdd5bd241a5bed30b77faef226702f09cd2`. It bundles a 48,188,514-byte model with UINT8 embeddings, FLOAT16 MatMul weight storage and FLOAT computation. CPU/WASM parity passed on 64 fixed examples; the 128-token p50 of 150.1ms missed the 100ms target, and general accuracy of this variant is unmeasured. It was integrated into a development preview after optimization was deferred. Formal MVP/M5 acceptance remains incomplete.
 
 The upstream model is SB Intuitions' [`ja-typo-detector-modernbert-ja-base-30m`](https://huggingface.co/sbintuitions/ja-typo-detector-modernbert-ja-base-30m).
 
