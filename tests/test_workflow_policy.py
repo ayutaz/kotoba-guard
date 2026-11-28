@@ -68,6 +68,16 @@ def test_codeql_is_gated_and_skips_are_reported() -> None:
     assert "not a security pass" in security
 
 
+def test_codeql_init_and_analyze_use_the_same_pinned_revision() -> None:
+    security = (ROOT / ".github" / "workflows" / "security.yml").read_text(encoding="utf-8")
+    actions = re.findall(r"uses: github/codeql-action/(init|analyze)@([^\s]+)", security)
+    assert len(actions) == 2
+    revisions = dict(actions)
+    assert set(revisions) == {"init", "analyze"}
+    assert re.fullmatch(r"[0-9a-f]{40}", revisions["init"])
+    assert revisions["init"] == revisions["analyze"]
+
+
 def test_workflows_write_only_sanitized_step_summaries() -> None:
     for workflow in WORKFLOWS:
         text = workflow.read_text(encoding="utf-8")
